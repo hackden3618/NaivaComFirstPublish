@@ -325,14 +325,20 @@
             row.className = "row";
             row.innerHTML = `
               <div class="meta">
-                <img class="thumb" src="${s.image || "images/webDevcard.webp"}" alt="${s.title}"/>
+                <img class="thumb" src="${
+                  s.image || "images/webDevcard.webp"
+                }" alt="${s.title}"/>
                 <div>
                   <strong>${s.title}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${s.description || ""}</div>
+                  <div style="font-size:0.9rem;color:var(--muted);">${
+                    s.description || ""
+                  }</div>
                 </div>
               </div>
               <div>
-                <button class="viewBtn" data-type="service" data-id="${s.id}">View</button>
+                <button class="viewBtn" data-type="service" data-id="${
+                  s.id
+                }">View</button>
                 <button data-id="${s.id}">Delete</button>
               </div>`;
             svcList.appendChild(row);
@@ -346,11 +352,15 @@
               <div class="meta">
                 <div>
                   <strong>${t.name}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${t.role || ""}</div>
+                  <div style="font-size:0.9rem;color:var(--muted);">${
+                    t.role || ""
+                  }</div>
                 </div>
               </div>
               <div>
-                <button class="viewBtn" data-type="testimonial" data-id="${t.id}">View</button>
+                <button class="viewBtn" data-type="testimonial" data-id="${
+                  t.id
+                }">View</button>
                 <button data-id="${t.id}">Delete</button>
               </div>`;
             testList.appendChild(row);
@@ -362,14 +372,20 @@
             row.className = "row";
             row.innerHTML = `
               <div class="meta">
-                <img class="thumb" src="${p.image || "images/webDevcard.webp"}" alt="${p.title}"/>
+                <img class="thumb" src="${
+                  p.image || "images/webDevcard.webp"
+                }" alt="${p.title}"/>
                 <div>
                   <strong>${p.title}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${p.description || ""}</div>
+                  <div style="font-size:0.9rem;color:var(--muted);">${
+                    p.description || ""
+                  }</div>
                 </div>
               </div>
               <div>
-                <button class="viewBtn" data-type="project" data-id="${p.id}">View</button>
+                <button class="viewBtn" data-type="project" data-id="${
+                  p.id
+                }">View</button>
                 <button data-id="${p.id}">Delete</button>
               </div>`;
             projList.appendChild(row);
@@ -496,8 +512,8 @@
         renderLists();
 
         // --- Create and wire a simple preview modal ---
-        const modal = document.createElement('div');
-        modal.id = 'admin-view-modal';
+        const modal = document.createElement("div");
+        modal.id = "admin-view-modal";
         modal.innerHTML = `
           <div class="overlay" tabindex="-1"></div>
           <div class="dialog" role="dialog" aria-modal="true" aria-label="Content preview">
@@ -512,42 +528,59 @@
           </div>`;
         document.body.appendChild(modal);
 
-        const viewModal = document.getElementById('admin-view-modal');
-        const viewPreview = viewModal.querySelector('img.preview');
-        const viewTitle = viewModal.querySelector('.title');
-        const viewDesc = viewModal.querySelector('.desc');
-        const viewExtra = viewModal.querySelector('.extra');
-        const viewLink = viewModal.querySelector('.externalLink');
-        const closeBtn = viewModal.querySelector('.closeBtn');
+        const viewModal = document.getElementById("admin-view-modal");
+        const viewPreview = viewModal.querySelector("img.preview");
+        const viewTitle = viewModal.querySelector(".title");
+        const viewDesc = viewModal.querySelector(".desc");
+        const viewExtra = viewModal.querySelector(".extra");
+        const viewLink = viewModal.querySelector(".externalLink");
+        const closeBtn = viewModal.querySelector(".closeBtn");
 
-        function openViewModal(type, id){
+        function openViewModal(type, id) {
           let data = null;
-          if(type === 'service') data = App.getServices().find(s=>s.id===id);
-          if(type === 'testimonial') data = App.getTestimonials().find(t=>t.id===id);
-          if(type === 'project') data = App.getProjects().find(p=>p.id===id);
-          if(!data) return alert('Item not found');
-          viewTitle.textContent = data.title || data.name || 'Preview';
-          viewDesc.textContent = data.description || data.comment || '';
-          viewExtra.textContent = data.role ? `Role: ${data.role}` : '';
-          if(data.image) { viewPreview.src = data.image; viewPreview.style.display = ''; }
-          else { viewPreview.style.display = 'none'; }
-          if(data.link){ viewLink.href = data.link; viewLink.style.display = 'inline-block'; }
-          else { viewLink.style.display = 'none'; }
-          viewModal.style.display = 'flex';
+          if (type === "service")
+            data = App.getServices().find((s) => s.id === id);
+          if (type === "testimonial")
+            data = App.getTestimonials().find((t) => t.id === id);
+          if (type === "project")
+            data = App.getProjects().find((p) => p.id === id);
+          if (!data) return alert("Item not found");
+          viewTitle.textContent = data.title || data.name || "Preview";
+          viewDesc.textContent = data.description || data.comment || "";
+          viewExtra.textContent = data.role ? `Role: ${data.role}` : "";
+          if (data.image) {
+            viewPreview.src = data.image;
+            viewPreview.style.display = "";
+          } else {
+            viewPreview.style.display = "none";
+          }
+          if (data.link) {
+            viewLink.href = data.link;
+            viewLink.style.display = "inline-block";
+          } else {
+            viewLink.style.display = "none";
+          }
+          viewModal.style.display = "flex";
           closeBtn.focus();
         }
 
-        function closeViewModal(){ viewModal.style.display = 'none'; }
-        closeBtn.addEventListener('click', closeViewModal);
-        viewModal.querySelector('.overlay').addEventListener('click', closeViewModal);
-        document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeViewModal(); });
+        function closeViewModal() {
+          viewModal.style.display = "none";
+        }
+        closeBtn.addEventListener("click", closeViewModal);
+        viewModal
+          .querySelector(".overlay")
+          .addEventListener("click", closeViewModal);
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeViewModal();
+        });
 
         // delegated click for view buttons
-        document.body.addEventListener('click', (e)=>{
-          const btn = e.target.closest('.viewBtn');
-          if(!btn) return;
-          const type = btn.getAttribute('data-type');
-          const id = Number(btn.getAttribute('data-id'));
+        document.body.addEventListener("click", (e) => {
+          const btn = e.target.closest(".viewBtn");
+          if (!btn) return;
+          const type = btn.getAttribute("data-type");
+          const id = Number(btn.getAttribute("data-id"));
           openViewModal(type, id);
         });
       });
