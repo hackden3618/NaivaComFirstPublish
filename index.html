@@ -26,7 +26,7 @@
       </div>
 
       <nav class="rSection" role="navigation" aria-label="Primary">
-        <ul class="navList">
+        <ul id="primary-navigation" class="navList">
           <li><a class="headerBtns" href="#home">Home</a></li>
           <li><a class="headerBtns" href="#about">About</a></li>
           <li><a class="headerBtns" href="#services">Services</a></li>
@@ -50,7 +50,7 @@
       </button>
     </header>
 
-    <section class="home">
+  <section id="home" class="home">
       <div class="homeContainer">
         <div class="webIntro">
           <h1 class="introTitle">
@@ -87,8 +87,9 @@
         </div>
       </div>
 
-      <div class="homeAboutContainer">
+      <div id="about" class="homeAboutContainer">
         <h1 class="whoWe">Who are we?</h1>
+        <h2 id="team" class="teamTitle">Our Team</h2>
         <div class="whoWeDesc">
           <ul>
             <li>
@@ -98,24 +99,24 @@
             <li>
               We are situated in Nairobi CBD where we offer our quality services
               to all our customers in and out of Kenya.
-              <span><a href="">>Find Us </a></span>
+              <span><a href="#contacts">>Find Us </a></span>
             </li>
             <li>
               Our team Comprises of 100% Professional Developers and specialists
               from different fields to ensure our services are well graded and
               have high quality assurance for your contentment.
-              <span><a href="">>See Team</a></span>
+              <span><a href="#team">>See Team</a></span>
             </li>
             <li>
               We integrate the latest technology valuing deep understanding of
               the systems we design to ensure proper maintenance and easier
               scalability as your business grows.
-              <span><a href="">>Projects</a></span>
+              <span><a href="#projects">>Projects</a></span>
             </li>
             <li>
               We have provided 20+ services for both small scale and many mid to
               large scale companies, businesses and other start-ups.
-              <span><a href=""> >Testimonials</a></span>
+              <span><a href="#testimonials"> >Testimonials</a></span>
             </li>
             <li>
               We provide affordable web hosting for you to ensure your website
@@ -124,11 +125,11 @@
           </ul>
         </div>
         <div class="findMoreBtn">
-          <a href=""><button>Find out More ></button></a>
+          <a href="#services" class="button-like">Find out More &gt;</a>
         </div>
       </div>
 
-      <div class="services">
+      <div id="services" class="services">
         <h1>Services</h1>
         <div class="svsItemContainer">
           <div class="svsItem">
@@ -169,11 +170,34 @@
         </div>
       </div>
 
-      <div class="testimonials">
+      <div id="projects" class="projects">
+        <h1>Projects</h1>
+        <div class="svsItemContainer">
+          <div class="svsItem"><p style="padding:20px">Project alpha — E-commerce platform</p></div>
+          <div class="svsItem"><p style="padding:20px">Project beta — SaaS analytics</p></div>
+          <div class="svsItem"><p style="padding:20px">Project gamma — Corporate site</p></div>
+        </div>
+      </div>
+
+      <div id="testimonials" class="testimonials">
         <div class="testimony">
           <img src="" alt="Profile Image" />
           <p class="name">Thomas Mclarens</p>
           <p></p>
+        </div>
+      </div>
+
+      <div id="contacts" class="contacts">
+        <h1>Contacts</h1>
+        <div style="display:flex;gap:16px;flex-direction:column;max-width:600px">
+          <p>Email: <a href="mailto:hello@naivacom.example">hello@naivacom.example</a></p>
+          <p>Phone: <a href="tel:+254700000000">+254 700 000 000</a></p>
+          <form style="display:flex;flex-direction:column;gap:8px">
+            <input type="text" name="name" placeholder="Your name" />
+            <input type="email" name="email" placeholder="Your email" />
+            <textarea name="message" placeholder="How can we help?" rows="4"></textarea>
+            <button type="submit">Send</button>
+          </form>
         </div>
       </div>
     </section>
