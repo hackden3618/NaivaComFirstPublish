@@ -66,7 +66,11 @@ body {
   border: none;
 }
 .subscribe {
-  margin-top: 18px;
+  background-color: var(--glass);
+  backdrop-filter: blur(1px);
+  border-radius: 18px;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 .subscribe input {
   display: block;
@@ -81,7 +85,7 @@ body {
   border-radius: 8px;
   background: var(--accent);
   color: white;
-  border: none;
+  border: none;;
 }
 #sub-msg {
   margin-top: 8px;
@@ -95,7 +99,7 @@ html.light body {
 }
 html.light .soon,
 html.light .center-card {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.6);
   color: #0b1220;
   box-shadow: 0 8px 20px rgba(10, 10, 10, 0.06);
 }

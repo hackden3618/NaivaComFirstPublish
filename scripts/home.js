@@ -39,7 +39,8 @@ const App = (() => {
   // Models
   const servicesModel = [];
   const testimonialsModel = [];
-  const teamModel = [];
+  // store team members in an object array named `teamMembers`
+  const teamMembers = [];
   const projectsModel = [];
 
   // Views
@@ -157,20 +158,27 @@ const App = (() => {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = "";
-    teamModel.forEach((m, i) => {
-      const row = document.createElement("div");
-      row.className = "team-card reveal";
-      row.style.animationDelay = i * 60 + "ms";
-      row.innerHTML = `<img class="team-thumb" src="${escapeHtml(
-        m.avatar || "images/icons/default-avatar.svg"
-      )}" alt="${escapeHtml(
-        m.name
-      )}"/><div class="team-info"><strong>${escapeHtml(
-        m.name
-      )}</strong><div class="team-role">${escapeHtml(
-        m.role || ""
-      )}</div></div>`;
-      container.appendChild(row);
+    teamMembers.forEach((m, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "team-card reveal";
+      wrap.style.animationDelay = i * 60 + "ms";
+
+      // portfolio link (if missing, use '#')
+      const href = m.portfolio ? m.portfolio : "#";
+
+      wrap.innerHTML = `
+        <a class="team-card-link" href="${escapeHtml(
+          href
+        )}" target="_blank" rel="noopener">
+          <img class="team-avatar" src="${escapeHtml(
+            m.avatar || "images/icons/default-avatar.svg"
+          )}" alt="${escapeHtml(m.name)}" />
+          <div class="team-body">
+            <h3 class="team-name">${escapeHtml(m.name)}</h3>
+            <p class="team-role">${escapeHtml(m.role || "")}</p>
+          </div>
+        </a>`;
+      container.appendChild(wrap);
     });
   }
 
@@ -203,20 +211,20 @@ const App = (() => {
     save();
   }
   function addTeam(item) {
-    teamModel.push(item);
+    teamMembers.push(item);
     renderTeam();
     save();
   }
   function setTeam(items) {
-    teamModel.length = 0;
-    teamModel.push(...items);
+    teamMembers.length = 0;
+    teamMembers.push(...items);
     renderTeam();
     save();
   }
   function updateTeam(item) {
-    const idx = teamModel.findIndex((t) => t.id === item.id);
+    const idx = teamMembers.findIndex((t) => t.id === item.id);
     if (idx > -1) {
-      teamModel[idx] = Object.assign({}, teamModel[idx], item);
+      teamMembers[idx] = Object.assign({}, teamMembers[idx], item);
       save();
       renderTeam();
     }
@@ -237,7 +245,7 @@ const App = (() => {
         JSON.stringify(testimonialsModel)
       );
       localStorage.setItem("naivacom-projects", JSON.stringify(projectsModel));
-      localStorage.setItem("naivacom-team", JSON.stringify(teamModel));
+      localStorage.setItem("naivacom-team", JSON.stringify(teamMembers));
     } catch (e) {
       console.warn("Could not save data", e);
     }
@@ -264,8 +272,8 @@ const App = (() => {
       }
       const tm = JSON.parse(localStorage.getItem("naivacom-team") || "null");
       if (Array.isArray(tm) && tm.length) {
-        teamModel.length = 0;
-        teamModel.push(...tm);
+        teamMembers.length = 0;
+        teamMembers.push(...tm);
       }
     } catch (e) {
       console.warn("Could not load stored data", e);
@@ -361,6 +369,30 @@ const App = (() => {
     },
   ];
 
+  const sampleTeam = [
+    {
+      id: 1,
+      name: "Aisha Mwangi",
+      role: "Founder & CEO",
+      avatar: "images/icons/default-avatar.svg",
+      portfolio: "#",
+    },
+    {
+      id: 2,
+      name: "John Otieno",
+      role: "Chief Technology Officer",
+      avatar: "images/icons/default-avatar.svg",
+      portfolio: "#",
+    },
+    {
+      id: 3,
+      name: "Marta Kimani",
+      role: "Lead Product Designer",
+      avatar: "images/icons/default-avatar.svg",
+      portfolio: "#",
+    },
+  ];
+
   // public API
   return {
     init() {
@@ -372,6 +404,8 @@ const App = (() => {
       else renderTestimonials();
       if (!projectsModel.length) setProjects(sampleProjects);
       else renderProjects();
+      if (!teamMembers.length) setTeam(sampleTeam);
+      else renderTeam();
     },
     addService,
     addTestimonial,
@@ -382,7 +416,7 @@ const App = (() => {
     getServices: () => servicesModel.slice(),
     getTestimonials: () => testimonialsModel.slice(),
     getProjects: () => projectsModel.slice(),
-    getTeams: () => teamModel.slice(),
+    getTeams: () => teamMembers.slice(),
     deleteService(id) {
       const idx = servicesModel.findIndex((s) => s.id === id);
       if (idx > -1) {
@@ -408,9 +442,9 @@ const App = (() => {
       }
     },
     deleteTeam(id) {
-      const idx = teamModel.findIndex((t) => t.id === id);
+      const idx = teamMembers.findIndex((t) => t.id === id);
       if (idx > -1) {
-        teamModel.splice(idx, 1);
+        teamMembers.splice(idx, 1);
         save();
         renderTeam();
       }

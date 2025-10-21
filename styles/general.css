@@ -261,6 +261,20 @@ textarea::placeholder {
   display: flex;
   flex-direction: column;
 }
+
+/* team card link - remove underline but keep accessible focus and hover styles */
+.team-card-link {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+.team-card-link:focus,
+.team-card-link:hover {
+  text-decoration: none;
+  outline: none;
+}
 .team-name {
   margin: 0;
   font-size: 1.05rem;
