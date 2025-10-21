@@ -50,7 +50,7 @@
       </button>
     </header>
 
-  <section id="home" class="home">
+    <section id="home" class="home">
       <div class="homeContainer">
         <div class="webIntro">
           <h1 class="introTitle">
@@ -129,73 +129,52 @@
         </div>
       </div>
 
-      <div id="services" class="services">
+      <section id="services" class="services">
         <h1>Services</h1>
-        <div class="svsItemContainer">
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
+        <div
+          class="svsItemContainer"
+          id="services-list"
+          aria-live="polite"
+        ></div>
+      </section>
 
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-          <div class="svsItem">
-            <img src="images/webDevcard.webp" alt="Web Development" />
-            <p>Web Development</p>
-          </div>
-        </div>
-      </div>
-
-      <div id="projects" class="projects">
+      <section id="projects" class="projects">
         <h1>Projects</h1>
-        <div class="svsItemContainer">
-          <div class="svsItem"><p style="padding:20px">Project alpha — E-commerce platform</p></div>
-          <div class="svsItem"><p style="padding:20px">Project beta — SaaS analytics</p></div>
-          <div class="svsItem"><p style="padding:20px">Project gamma — Corporate site</p></div>
-        </div>
-      </div>
+        <div class="svsItemContainer" id="projects-list"></div>
+      </section>
 
-      <div id="testimonials" class="testimonials">
-        <div class="testimony">
-          <img src="" alt="Profile Image" />
-          <p class="name">Thomas Mclarens</p>
-          <p></p>
-        </div>
-      </div>
+      <section id="testimonials" class="testimonials">
+        <h1>Testimonials</h1>
+        <div
+          id="testimonials-list"
+          class="testimonials-list"
+          aria-live="polite"
+        ></div>
+      </section>
 
       <div id="contacts" class="contacts">
         <h1>Contacts</h1>
-        <div style="display:flex;gap:16px;flex-direction:column;max-width:600px">
-          <p>Email: <a href="mailto:hello@naivacom.example">hello@naivacom.example</a></p>
+        <div
+          style="
+            display: flex;
+            gap: 16px;
+            flex-direction: column;
+            max-width: 600px;
+          "
+        >
+          <p>
+            Email:
+            <a href="mailto:hello@naivacom.example">hello@naivacom.example</a>
+          </p>
           <p>Phone: <a href="tel:+254700000000">+254 700 000 000</a></p>
-          <form style="display:flex;flex-direction:column;gap:8px">
+          <form style="display: flex; flex-direction: column; gap: 8px">
             <input type="text" name="name" placeholder="Your name" />
             <input type="email" name="email" placeholder="Your email" />
-            <textarea name="message" placeholder="How can we help?" rows="4"></textarea>
+            <textarea
+              name="message"
+              placeholder="How can we help?"
+              rows="4"
+            ></textarea>
             <button type="submit">Send</button>
           </form>
         </div>
