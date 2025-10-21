@@ -12,6 +12,11 @@
         max-width: 1000px;
         margin: 40px auto;
         padding: 20px;
+        background: rgba(26, 34, 46, 0.5);
+        backdrop-filter: blur(8px) saturate(120%);
+        -webkit-backdrop-filter: blur(8px) saturate(120%);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
       }
       form {
         display: flex;
@@ -29,21 +34,119 @@
         justify-content: space-between;
         padding: 8px;
         border-radius: 8px;
-        background: var(--card);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
       }
       .row .meta {
         display: flex;
         gap: 12px;
         align-items: center;
       }
+      .thumb {
+        width: 56px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        display: inline-block;
+      }
+      /* modal styles */
+      #admin-view-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      }
+      #admin-view-modal .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+      }
+      #admin-view-modal .dialog {
+        position: relative;
+        max-width: 880px;
+        width: 95%;
+        background: rgba(26, 34, 46, 0.85);
+        color: #fff;
+        padding: 18px;
+        border-radius: 12px;
+        z-index: 10001;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 12px;
+      }
+      #admin-view-modal img.preview {
+        width: 100%;
+        height: auto;
+        max-height: 420px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      #admin-view-modal .dialog .meta {
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+      #admin-view-modal .closeBtn {
+        position: absolute;
+        right: 10px;
+        top: 8px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
       .row button {
         background: #d9534f;
+      }
+      /* light-mode admin overrides */
+      html.light main {
+        background: rgba(255, 255, 255, 0.9);
+        color: #0b1220;
+        border: 1px solid rgba(10, 10, 10, 0.06);
+      }
+      html.light .list .row {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      html.light #pw-form {
+        background: rgba(255, 255, 255, 0.95) !important;
+        color: #0b1220;
       }
     </style>
   </head>
   <body>
     <main>
       <h1>Admin — Content Manager</h1>
+      <div
+        id="edit-controls"
+        style="
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 12px;
+        "
+      >
+        <button
+          id="toggle-edit"
+          style="
+            background: #2b6be6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+          "
+        >
+          Enable Editing
+        </button>
+        <span id="edit-status" style="color: var(--muted)"
+          >Editing is disabled — view-only</span
+        >
+      </div>
       <section id="admin-services">
         <h2>Services</h2>
         <form id="service-form">
@@ -69,6 +172,21 @@
         <div class="list" id="admin-testimonials-list"></div>
       </section>
 
+      <section id="admin-projects">
+        <h2>Projects</h2>
+        <form id="project-form">
+          <input name="title" placeholder="Project title" required />
+          <input name="image" placeholder="Image path (optional)" />
+          <input name="link" placeholder="External link (https://...)" />
+          <textarea
+            name="description"
+            placeholder="Short description"
+          ></textarea>
+          <button type="submit">Add Project</button>
+        </form>
+        <div class="list" id="admin-projects-list"></div>
+      </section>
+
       <button id="clear-data" style="margin-top: 24px; background: #c9302c">
         Clear all saved data
       </button>
@@ -90,7 +208,9 @@
       <form
         id="pw-form"
         style="
-          background: var(--card);
+          background: rgba(26, 34, 46, 0.6);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
           padding: 20px;
           border-radius: 12px;
           min-width: 320px;
@@ -153,20 +273,65 @@
 
         const svcForm = document.getElementById("service-form");
         const svcList = document.getElementById("admin-services-list");
+        const projForm = document.getElementById("project-form");
+        const projList = document.getElementById("admin-projects-list");
         const testForm = document.getElementById("testimonial-form");
         const testList = document.getElementById("admin-testimonials-list");
         const clearBtn = document.getElementById("clear-data");
+        const toggleEditBtn = document.getElementById("toggle-edit");
+        const editStatus = document.getElementById("edit-status");
+
+        // editing is disabled by default; require explicit enable
+        let editEnabled =
+          sessionStorage.getItem("naivacom-edit-enabled") === "1";
+
+        function setEditMode(on) {
+          editEnabled = !!on;
+          sessionStorage.setItem(
+            "naivacom-edit-enabled",
+            editEnabled ? "1" : "0"
+          );
+          // enable/disable forms
+          [svcForm, testForm, projForm].forEach((f) => {
+            if (!f) return;
+            Array.from(f.querySelectorAll("input,textarea,button")).forEach(
+              (el) => {
+                // keep the toggle button unaffected
+                if (el.id === "toggle-edit") return;
+                el.disabled = !editEnabled;
+              }
+            );
+          });
+          // show status
+          editStatus.textContent = editEnabled
+            ? "Editing enabled — you can add/delete content"
+            : "Editing is disabled — view-only";
+          toggleEditBtn.textContent = editEnabled
+            ? "Disable Editing"
+            : "Enable Editing";
+          // show or hide delete buttons
+          document.querySelectorAll(".row button[data-id]").forEach((b) => {
+            b.style.display = editEnabled ? "inline-block" : "none";
+          });
+        }
+
+        // initialize edit mode UI
+        setEditMode(editEnabled);
 
         function renderLists() {
           svcList.innerHTML = "";
           (App.getServices() || []).forEach((s) => {
             const row = document.createElement("div");
             row.className = "row";
-            row.innerHTML = `<div class="meta"><strong>${
+            row.innerHTML = `<div class="meta"><img class="thumb" src="${
+              s.image || "images/webDevcard.webp"
+            }" alt="${s.title}"/><div><strong>${
               s.title
-            }</strong><span>${
+            }</strong><div style="font-size:0.9rem;color:var(--muted);">${
               s.description || ""
-            }</span></div><div><button data-id="${s.id}">Delete</button></div>`;
+            }</div></div></div><div><button data-id="${
+              s.id
+            }">Delete</button></div>`;
             svcList.appendChild(row);
           });
 
@@ -181,10 +346,32 @@
             }">Delete</button></div>`;
             testList.appendChild(row);
           });
+
+          // projects
+          projList.innerHTML = "";
+          (App.getProjects() || []).forEach((p) => {
+            const row = document.createElement("div");
+            row.className = "row";
+            row.innerHTML = `<div class="meta"><img class="thumb" src="${
+              p.image || "images/webDevcard.webp"
+            }" alt="${p.title}"/><div><strong>${
+              p.title
+            }</strong><div style="font-size:0.9rem;color:var(--muted);">${
+              p.description || ""
+            }</div></div></div><div><button data-id="${
+              p.id
+            }">Delete</button></div>`;
+            projList.appendChild(row);
+          });
         }
 
         svcForm.addEventListener("submit", (e) => {
           e.preventDefault();
+          if (!editEnabled) {
+            alert("Enable editing to add content");
+            return;
+          }
+          if (!confirm("Confirm adding this service?")) return;
           const fd = new FormData(svcForm);
           const item = {
             id: Date.now(),
@@ -199,6 +386,11 @@
 
         testForm.addEventListener("submit", (e) => {
           e.preventDefault();
+          if (!editEnabled) {
+            alert("Enable editing to add content");
+            return;
+          }
+          if (!confirm("Confirm adding this testimonial?")) return;
           const fd = new FormData(testForm);
           const item = {
             id: Date.now(),
@@ -211,16 +403,57 @@
           renderLists();
         });
 
+        projForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const fd = new FormData(projForm);
+          const item = {
+            id: Date.now(),
+            title: fd.get("title"),
+            image: fd.get("image") || "images/webDevcard.webp",
+            link: fd.get("link") || "",
+            description: fd.get("description") || "",
+          };
+          App.addProject(item);
+          projForm.reset();
+          renderLists();
+        });
+
         svcList.addEventListener("click", (e) => {
           const id = e.target.getAttribute("data-id");
           if (!id) return;
+          if (!editEnabled) {
+            alert("Enable editing to delete content");
+            return;
+          }
+          if (!confirm("Delete this service? This action cannot be undone."))
+            return;
           App.deleteService(Number(id));
           renderLists();
         });
         testList.addEventListener("click", (e) => {
           const id = e.target.getAttribute("data-id");
           if (!id) return;
+          if (!editEnabled) {
+            alert("Enable editing to delete content");
+            return;
+          }
+          if (
+            !confirm("Delete this testimonial? This action cannot be undone.")
+          )
+            return;
           App.deleteTestimonial(Number(id));
+          renderLists();
+        });
+        projList.addEventListener("click", (e) => {
+          const id = e.target.getAttribute("data-id");
+          if (!id) return;
+          if (!editEnabled) {
+            alert("Enable editing to delete content");
+            return;
+          }
+          if (!confirm("Delete this project? This action cannot be undone."))
+            return;
+          App.deleteProject(Number(id));
           renderLists();
         });
 
@@ -228,7 +461,24 @@
           if (confirm("Clear stored data?")) {
             localStorage.removeItem("naivacom-services");
             localStorage.removeItem("naivacom-testimonials");
+            localStorage.removeItem("naivacom-projects");
             location.reload();
+          }
+        });
+
+        // toggle edit permission button
+        toggleEditBtn.addEventListener("click", () => {
+          if (editEnabled) {
+            if (confirm("Disable editing?")) setEditMode(false);
+            return;
+          }
+          // require confirmation to enable edits
+          if (
+            confirm(
+              "Enable editing — this will allow adding and deleting site content. Continue?"
+            )
+          ) {
+            setEditMode(true);
           }
         });
 

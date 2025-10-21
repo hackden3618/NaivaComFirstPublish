@@ -39,6 +39,7 @@ const App = (() => {
   // Models
   const servicesModel = [];
   const testimonialsModel = [];
+  const projectsModel = [];
 
   // Views
   function renderServices(containerId = "services-list") {
@@ -86,6 +87,40 @@ const App = (() => {
     });
   }
 
+  function renderProjects(containerId = "projects-list") {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    projectsModel.forEach((p, i) => {
+      const wrap = document.createElement("div");
+      wrap.className = "svsItem reveal";
+      wrap.style.animationDelay = i * 60 + "ms";
+      const card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML = `
+        ${
+          p.image
+            ? `<img src="${p.image}" alt="${escapeHtml(
+                p.title
+              )}" loading="lazy"/>`
+            : ""
+        }
+        <div class="card-body">
+          <h3>${escapeHtml(p.title)}</h3>
+          <p class="muted">${escapeHtml(p.description || "")}</p>
+          ${
+            p.link
+              ? `<p><a href="${escapeHtml(
+                  p.link
+                )}" target="_blank" rel="noopener" class="button-like">View Project</a></p>`
+              : ""
+          }
+        </div>`;
+      wrap.appendChild(card);
+      container.appendChild(wrap);
+    });
+  }
+
   // Controller
   function addService(item) {
     servicesModel.push(item);
@@ -103,6 +138,17 @@ const App = (() => {
     renderTestimonials();
     save();
   }
+  function addProject(item) {
+    projectsModel.push(item);
+    renderProjects();
+    save();
+  }
+  function setProjects(items) {
+    projectsModel.length = 0;
+    projectsModel.push(...items);
+    renderProjects();
+    save();
+  }
   function setTestimonials(items) {
     testimonialsModel.length = 0;
     testimonialsModel.push(...items);
@@ -118,6 +164,7 @@ const App = (() => {
         "naivacom-testimonials",
         JSON.stringify(testimonialsModel)
       );
+      localStorage.setItem("naivacom-projects", JSON.stringify(projectsModel));
     } catch (e) {
       console.warn("Could not save data", e);
     }
@@ -129,6 +176,7 @@ const App = (() => {
       const t = JSON.parse(
         localStorage.getItem("naivacom-testimonials") || "null"
       );
+      const p = JSON.parse(localStorage.getItem("naivacom-projects") || "null");
       if (Array.isArray(s) && s.length) {
         servicesModel.length = 0;
         servicesModel.push(...s);
@@ -136,6 +184,10 @@ const App = (() => {
       if (Array.isArray(t) && t.length) {
         testimonialsModel.length = 0;
         testimonialsModel.push(...t);
+      }
+      if (Array.isArray(p) && p.length) {
+        projectsModel.length = 0;
+        projectsModel.push(...p);
       }
     } catch (e) {
       console.warn("Could not load stored data", e);
@@ -213,6 +265,23 @@ const App = (() => {
         "Professional, timely and strategic, our conversion rate improved after the redesign.",
     },
   ];
+  const sampleProjects = [
+    {
+      id: 1,
+      title: "NaivaCom Portfolio Site",
+      description:
+        "A responsive marketing site built with performance in mind.",
+      image: "images/webDevcard.webp",
+      link: "#",
+    },
+    {
+      id: 2,
+      title: "E-commerce Demo",
+      description: "A secure demo storefront with payment integration.",
+      image: "images/webDevcard.webp",
+      link: "#",
+    },
+  ];
 
   // public API
   return {
@@ -223,13 +292,18 @@ const App = (() => {
       else renderServices();
       if (!testimonialsModel.length) setTestimonials(sampleTestimonials);
       else renderTestimonials();
+      if (!projectsModel.length) setProjects(sampleProjects);
+      else renderProjects();
     },
     addService,
     addTestimonial,
+    addProject,
     setServices,
     setTestimonials,
+    setProjects,
     getServices: () => servicesModel.slice(),
     getTestimonials: () => testimonialsModel.slice(),
+    getProjects: () => projectsModel.slice(),
     deleteService(id) {
       const idx = servicesModel.findIndex((s) => s.id === id);
       if (idx > -1) {
@@ -244,6 +318,14 @@ const App = (() => {
         testimonialsModel.splice(idx, 1);
         save();
         renderTestimonials();
+      }
+    },
+    deleteProject(id) {
+      const idx = projectsModel.findIndex((p) => p.id === id);
+      if (idx > -1) {
+        projectsModel.splice(idx, 1);
+        save();
+        renderProjects();
       }
     },
   };
@@ -284,4 +366,78 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(next);
     localStorage.setItem("naivacom-theme", next);
   });
+})();
+
+/* UX Improvements: lazy-load hero video and smooth-scroll */
+(function heroVideoLazy() {
+  const vid = document.getElementById("hero-video");
+  if (!vid) return;
+
+  // choose video source based on devicePixelRatio and network
+  const dpr = window.devicePixelRatio || 1;
+  const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection ||
+    {};
+  const saveData = connection.saveData || false;
+  let preferHigh = dpr >= 2 && !saveData;
+
+  const sources = [];
+  // prefer 4k for high DPR on good connections
+  if (preferHigh) {
+    sources.push({
+      src: "videos/demonstrationVideo_4k.mp4",
+      type: "video/mp4",
+    });
+  }
+  // fallback HD
+  sources.push({
+    src: "videos/demonstrationVideo_1080.mp4",
+    type: "video/mp4",
+  });
+
+  // IntersectionObserver to lazy-load when hero is visible
+  const obs = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // load the first existing source
+          (async () => {
+            for (const s of sources) {
+              try {
+                // quick existence check via fetch HEAD for same-origin
+                const res = await fetch(s.src, { method: "HEAD" });
+                if (res && res.ok) {
+                  const sourceEl = document.createElement("source");
+                  sourceEl.src = s.src;
+                  sourceEl.type = s.type;
+                  vid.appendChild(sourceEl);
+                  vid.load();
+                  break;
+                }
+              } catch (e) {
+                /* ignore and try next */
+              }
+            }
+          })();
+          obs.disconnect();
+        }
+      });
+    },
+    { rootMargin: "200px" }
+  );
+
+  obs.observe(vid);
+
+  // Smooth scroll for anchor clicks
+  if ("scrollBehavior" in document.documentElement.style) {
+    document.documentElement.style.scrollBehavior = "smooth";
+  }
+
+  // Respect prefers-reduced-motion
+  const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (mediaQuery.matches) {
+    document.documentElement.style.scrollBehavior = "auto";
+  }
 })();

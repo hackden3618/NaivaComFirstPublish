@@ -70,6 +70,12 @@ header {
   display: block;
 }
 
+/* light-mode: give hamburger a visible indigo background for contrast */
+html.light .hamburgerMenuBtn {
+  background: linear-gradient(135deg, #3f51b5, #5c4bd7);
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.18);
+}
+
 /* mobile */
 @media (max-width: 700px) {
   .navList {

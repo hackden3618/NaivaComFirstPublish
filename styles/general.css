@@ -28,7 +28,12 @@ html.light h3 {
 
 /* In light mode prefer a clean background (no heavy neon image) for readability */
 html.light body {
-  background-image: none;
+  /* use the luxurious light background image for light theme */
+  background-image: url("images/icons/luxuriousBackgroundLight_imgupscaler.ai_General_4K.jpg");
+  background-position: center;
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
   background-color: var(--bg);
 }
 
@@ -122,7 +127,9 @@ textarea {
 }
 input::placeholder,
 textarea::placeholder {
-  color: rgba(0, 0, 0, 0.35);
+  /* use the --muted variable so placeholder remains visible in both themes */
+  color: var(--muted);
+  opacity: 0.95;
 }
 
 /* theme toggle small styles */

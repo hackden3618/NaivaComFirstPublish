@@ -95,12 +95,17 @@
 .testimonials,
 .projects,
 .contacts {
-  background-color: var(--card);
+  /* glassy card look: translucent background + backdrop blur */
+  background-color: rgba(26, 34, 46, 0.55);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
   border-radius: 20px;
   padding: 20px;
   flex: 1;
   margin-bottom: 80px;
   width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 .homeContainer {
   animation-name: slideUp;
@@ -210,32 +215,50 @@
   flex-wrap: wrap;
   width: 100%;
 }
+/* Services grid - let items freely size and avoid clipping */
 .svsItemContainer {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  /* allow rows to size to content (prevents clipping) */
+  grid-auto-rows: auto;
+  align-items: start;
 }
+
 .svsItem {
   width: 100%;
   display: flex;
   align-items: stretch;
 }
+
 .svsItem .card {
-  flex: 1;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* important for flex children to not overflow */
 }
+
 .svsItem:hover .card {
   transform: translateY(-6px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
-.svsItem img {
+
+/* Use aspect-ratio for images so they scale smoothly across sizes */
+.svsItem img,
+.card img {
   width: 100%;
-  height: 140px;
+  height: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
+  max-height: 360px; /* avoid overly tall images on very large screens */
 }
+
 .svsItem p {
   padding: 18px 12px;
   font-size: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* card helpers used for services and projects */
@@ -301,10 +324,24 @@
 
 @media (max-width: 640px) {
   .card img {
-    height: 120px;
+    aspect-ratio: 3 / 2;
+    max-height: 160px;
   }
+  /* avoid forcing a fixed svsItem height on small screens */
   .svsItem {
-    height: 220px;
+    height: auto;
+  }
+}
+
+/* Large screens: increase min column size so cards can use more horizontal space */
+@media (min-width: 1600px) {
+  .svsItemContainer {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+  }
+  .svsItem img,
+  .card img {
+    max-height: 480px;
   }
 }
 
@@ -329,4 +366,23 @@
   .homeAboutContainer {
     width: 95%;
   }
+}
+
+/* Light theme glass tweaks */
+html.light .homeContainer,
+html.light .homeAboutContainer,
+html.light .services,
+html.light .testimonials,
+html.light .projects,
+html.light .contacts {
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #0b1220;
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  backdrop-filter: blur(6px) saturate(110%);
+  -webkit-backdrop-filter: blur(6px) saturate(110%);
+}
+
+/* testimonial quote color for light mode */
+html.light .testimonial-card .quote {
+  color: #444444; /* dark gray for good contrast */
 }
