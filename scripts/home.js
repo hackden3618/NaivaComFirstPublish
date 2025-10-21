@@ -42,6 +42,7 @@ const App = (() => {
   // store team members in an object array named `teamMembers`
   const teamMembers = [];
   const projectsModel = [];
+  console.log(teamMembers)
 
   // Views
   function renderServices(containerId = "services-list") {
@@ -342,39 +343,55 @@ const App = (() => {
       id: 1,
       title: "Custom Web Development",
       description:
-        "Responsive, accessible, and scalable web apps built to your spec.",
+        "We build responsive and scalable web apps built to your spec.",
       image: "images/webDevcard.webp",
     },
     {
       id: 2,
       title: "UI / UX Design",
       description:
-        "Design systems and interfaces that convert users into customers.",
-      image: "images/webDevcard.webp",
+        "We design systems and interfaces that convert your users into customers.",
+      image: "images/UIuxDesignIcon.webp",
     },
     {
       id: 3,
       title: "E-commerce Solutions",
       description:
-        "Secure online stores with payment integrations and analytics.",
-      image: "images/webDevcard.webp",
+        "We help you secure online stores with payment integrations and analytics.",
+      image: " images/eCommerceImageIcon.webp ",
     },
     {
       id: 4,
       title: "Performance & SEO",
       description:
-        "Speed, optimization, and search improvements that drive traffic.",
-      image: "images/webDevcard.webp",
+        "We implement optimization and search improvements that drive traffic.",
+      image: "images/googleImageIconSEO.webp",
+    },
+    {
+      id: 5,
+      title: "Payments Integration",
+      description:
+        "We can set up your business to receive payments seamlessly online keeping up with modern markets.",
+      image: "images/mpesaLogo.webp",
+    },
+    {
+      id: 6,
+      title: "System Analysis, Design & Development",
+      description:
+        "We design systems you wish to integrate or even run your business by our professionals.",
+      image: "images/system_design2.webp",
     },
   ];
 
   const sampleTestimonials = [
     {
       id: 1,
-      name: "Aisha Mwangi",
-      role: "Founder, Acme Foods",
+      name: "David Maina",
+      role: "Founder & CEO, NaivaCom",
       comment:
-        "NaivaCom delivered a modern store that increased online orders by 83%, communication and delivery were excellent.",
+        "I started NaivaCom web development as a small start-up several years ago to help grow small local businesses, I never could have predicted to be serving large companies as soon as 2024.",
+      avatar: "images/mainaPilotImg.webp",
+      rating: 100,
     },
     {
       id: 2,
@@ -382,13 +399,44 @@ const App = (() => {
       role: "CTO, Atlas Logistics",
       comment:
         "Their team rebuilt our dashboard with clear UX improvements and measurable performance gains.",
+      avatar: "images/icons/default-avatar.png",
+      rating: 87,
     },
     {
       id: 3,
       name: "Marta Kimani",
       role: "Marketing Lead, BrightMedia",
       comment:
-        "Professional, timely and strategic, our conversion rate improved after the redesign.",
+        "Professional and strategic, our conversion rate improved after the redesign of our website.Loved their dedication to understanding our needs.",
+      avatar: "images/icons/default-avatar.png",
+      rating: 96,
+    },
+    {
+      id: 4,
+      name: "Silvia Njeri",
+      role: "Software Engineer, AWS",
+      comment:
+        "I only work with genuine companies and NaivaCom has always proven me wrong about local development. PS, I'm still looking for any errors to point out but so far, none!",
+      avatar: "images/silviaDepiction.webp",
+      rating: 83,
+    },
+    {
+      id: 4,
+      name: "Dennis Wambugu",
+      role: "Computer Scientist, Google",
+      comment:
+        "Geez, I have worked with so many developers, NaivaCom has this customer first directive where they actually listen to what you need and deliver more than expected. Kudos to the team!",
+      avatar: "images/cropImgMe.jpg",
+      rating: 98,
+    },
+    {
+      id: 4,
+      name: "Thomas Mulwa",
+      role: "Computer Scientist, Maseno University",
+      comment:
+        "I got recommended to NaivaCom by a friend and I must say, the experience has been top-notch. Nobody judge me when I can be working with this company while I have my website working for me 24/7. Thank you NaivaCom!",
+      avatar: "images/thomasCat.webp",
+      rating: 95,
     },
   ];
   const sampleProjects = [
@@ -397,38 +445,45 @@ const App = (() => {
       title: "NaivaCom Portfolio Site",
       description:
         "A responsive marketing site built with performance in mind.",
-      image: "images/webDevcard.webp",
+      image: "images/NaivaComLogo.jpeg",
       link: "#",
     },
     {
       id: 2,
-      title: "E-commerce Demo",
-      description: "A secure demo storefront with payment integration.",
-      image: "images/webDevcard.webp",
-      link: "#",
+      title: "Le Concierge E-commerce",
+      description: "A secure luxury service provider with payment integration.",
+      image: "images/laconciergeWebsiteimage.webp",
+      link: "https://la-concierge-website.onrender.com/",
     },
   ];
 
   const sampleTeam = [
     {
       id: 1,
-      name: "Aisha Mwangi",
+      name: "David Maina",
       role: "Founder & CEO",
-      avatar: "images/icons/default-avatar.svg",
+      avatar: "images/mainaPilotImg.webp",
       portfolio: "#",
     },
     {
       id: 2,
-      name: "John Otieno",
-      role: "Chief Technology Officer",
-      avatar: "images/icons/default-avatar.svg",
+      name: "Dennis Wambugu",
+      role: "Co-Founder & CTO",
+      avatar: "images/cropImgMe.jpg",
       portfolio: "#",
     },
     {
       id: 3,
-      name: "Marta Kimani",
-      role: "Lead Product Designer",
-      avatar: "images/icons/default-avatar.svg",
+      name: "Silvia Njeri",
+      role: "Software Engineer",
+      avatar: "images/silviaDepiction.webp",
+      portfolio: "#",
+    },
+    {
+      id: 4,
+      name: "Thomas Mulwa",
+      role: "Computer Scientist",
+      avatar: "images/thomasCat.webp",
       portfolio: "#",
     },
   ];
