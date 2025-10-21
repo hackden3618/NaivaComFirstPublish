@@ -9,6 +9,25 @@
   --gap: 16px;
 }
 
+/* Light theme -- add class 'light' on html or body to switch */
+html.light {
+  --bg: #f4f6f8;
+  --accent: #b37a00;
+  --primary: #3b2a6c;
+  --muted: #5f6b72;
+  --card: rgba(255, 255, 255, 0.95);
+  --glass: rgba(255, 255, 255, 0.7);
+  color: #0b1220;
+}
+
+html.light h1, html.light h2, html.light h3 { color: #0b1220; }
+
+/* In light mode prefer a clean background (no heavy neon image) for readability */
+html.light body {
+  background-image: none;
+  background-color: var(--bg);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -26,7 +45,7 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-color: var(--bg);
-  transition: background-color 0.25s ease;
+  transition: background-color 0.25s ease, color 0.2s ease;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -93,11 +112,22 @@ input,
 textarea {
   border-radius: 8px;
   padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(255, 255, 255, 0.02);
   color: inherit;
 }
 input::placeholder,
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(0, 0, 0, 0.35);
+}
+
+/* theme toggle small styles */
+.themeToggle {
+  background: transparent;
+  border-radius: 10px;
+  padding: 6px;
+  font-size: 18px;
+}
+.themeToggle[aria-pressed="true"] {
+  background: var(--glass);
 }

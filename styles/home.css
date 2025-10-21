@@ -42,6 +42,15 @@
   align-items: center;
   margin-top: 80px;
 }
+
+/* hero video background */
+.hero{position:relative;width:100%;max-width:1200px;border-radius:20px;overflow:hidden}
+.hero{position:relative;width:100%;max-width:1200px;border-radius:20px;overflow:hidden}
+.hero{--hero-h: clamp(320px, 40vh, 520px);}
+.hero-video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;filter:contrast(0.9) brightness(0.45);z-index:0;pointer-events:none}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.6));z-index:1;pointer-events:none}
+.hero .homeContainer{position:relative;z-index:2;min-height:var(--hero-h);padding:28px}
+.hero .homeContainer{position:relative;z-index:2}
 .homeContainer,
 .homeAboutContainer,
 .services,
@@ -170,42 +179,36 @@
   gap: 20px;
 }
 .svsItem {
-  background-color: var(--accent);
-  display: flex;
-  flex-direction: column;
   width: 100%;
-  overflow: hidden;
-  height: 250px;
-  align-items: center;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.2s ease;
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: stretch;
 }
-.svsItem:hover {
+.svsItem .card {
+  flex: 1;
+}
+.svsItem:hover .card {
   transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
 .svsItem img {
   width: 100%;
-  height: 100%;
+  height: 140px;
   object-fit: cover;
 }
 .svsItem p {
-  padding: 30px 5px;
-  font-size: 1.15rem;
+  padding: 18px 12px;
+  font-size: 1rem;
 }
 
 /* card helpers used for services and projects */
 .card {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03),
-    rgba(0, 0, 0, 0.06)
-  );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.12));
   overflow: hidden;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 .card img {
   width: 100%;
@@ -221,6 +224,7 @@
 .card .card-body h3 {
   margin: 0;
   font-size: 1.05rem;
+  color: #fff;
 }
 .card .muted {
   color: var(--muted);
@@ -239,11 +243,12 @@
   padding: 18px;
   border-radius: 12px;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 .testimonial-card .quote {
   font-style: italic;
   margin: 0 0 8px 0;
-  color: #eee;
+  color: #f1f1f1;
 }
 .testimonial-card footer {
   display: flex;
@@ -264,6 +269,11 @@
     height: 220px;
   }
 }
+
+/* reveal animation */
+.reveal{opacity:0;transform:translateY(12px);animation:revealUp .5s forwards ease-out}
+@keyframes revealUp{to{opacity:1;transform:none}}
+
 
 @media (max-width: 900px) {
   .home {

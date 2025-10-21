@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NaivaCom Admin</title>
+  <link rel="stylesheet" href="styles/general.css">
+  <link rel="stylesheet" href="styles/home.css">
+  <script defer src="scripts/home.js"></script>
+  <style>
+    main{max-width:1000px;margin:40px auto;padding:20px}
+    form{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+    .list{display:grid;gap:8px}
+    .list .row{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:8px;background:var(--card)}
+    .row .meta{display:flex;gap:12px;align-items:center}
+    .row button{background:#d9534f}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Admin — Content Manager</h1>
+    <section id="admin-services">
+      <h2>Services</h2>
+      <form id="service-form">
+        <input name="title" placeholder="Title" required />
+        <input name="image" placeholder="Image path (optional)" />
+        <textarea name="description" placeholder="Short description"></textarea>
+        <button type="submit">Add Service</button>
+      </form>
+      <div class="list" id="admin-services-list"></div>
+    </section>
+
+    <section id="admin-testimonials">
+      <h2>Testimonials</h2>
+      <form id="testimonial-form">
+        <input name="name" placeholder="Name" required />
+        <input name="role" placeholder="Role / Company" />
+        <textarea name="comment" placeholder="Comment" required></textarea>
+        <button type="submit">Add Testimonial</button>
+      </form>
+      <div class="list" id="admin-testimonials-list"></div>
+    </section>
+
+    <button id="clear-data" style="margin-top:24px;background:#c9302c">Clear all saved data</button>
+  </main>
+
+  <!-- Password gate overlay -->
+  <div id="pw-gate" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:9999">
+    <form id="pw-form" style="background:var(--card);padding:20px;border-radius:12px;min-width:320px;display:flex;flex-direction:column;gap:12px">
+      <h2>Admin Login</h2>
+      <input id="pw-input" type="password" placeholder="Enter admin password" autofocus />
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="submit">Enter</button>
+      </div>
+      <p style="font-size:0.9rem;color:var(--muted)">Hint: contact site owner</p>
+      <p id="pw-error" style="color:#f66;display:none;margin:0"></p>
+    </form>
+  </div>
+
+  <script>
+    // small admin wiring to App (exposed by scripts/home.js)
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // password gate logic
+      const gate = document.getElementById('pw-gate');
+      const pwForm = document.getElementById('pw-form');
+      const pwInput = document.getElementById('pw-input');
+      const pwError = document.getElementById('pw-error');
+      const AUTH_KEY = 'naivacom-admin-auth';
+
+      function isAuthed(){ return sessionStorage.getItem(AUTH_KEY) === '1'; }
+      function unlock(){ gate.style.display='none'; }
+      function lock(){ gate.style.display='flex'; }
+
+      if (isAuthed()) unlock();
+
+      pwForm.addEventListener('submit', e=>{
+        e.preventDefault();
+        const val = pwInput.value||'';
+        if (val === 'komoKomo'){
+          sessionStorage.setItem(AUTH_KEY,'1');
+          unlock();
+        } else {
+          pwError.style.display='block'; pwError.textContent='Wrong password';
+          setTimeout(()=>pwError.style.display='none',2000);
+        }
+      });
+
+      const svcForm = document.getElementById('service-form');
+      const svcList = document.getElementById('admin-services-list');
+      const testForm = document.getElementById('testimonial-form');
+      const testList = document.getElementById('admin-testimonials-list');
+      const clearBtn = document.getElementById('clear-data');
+
+      function renderLists(){
+        svcList.innerHTML='';
+        (App.getServices()||[]).forEach(s=>{
+          const row = document.createElement('div'); row.className='row';
+          row.innerHTML = `<div class="meta"><strong>${s.title}</strong><span>${s.description||''}</span></div><div><button data-id="${s.id}">Delete</button></div>`;
+          svcList.appendChild(row);
+        });
+
+        testList.innerHTML='';
+        (App.getTestimonials()||[]).forEach(t=>{
+          const row = document.createElement('div'); row.className='row';
+          row.innerHTML = `<div class="meta"><strong>${t.name}</strong><span>${t.role||''}</span></div><div><button data-id="${t.id}">Delete</button></div>`;
+          testList.appendChild(row);
+        });
+      }
+
+      svcForm.addEventListener('submit', e=>{
+        e.preventDefault();
+        const fd = new FormData(svcForm);
+        const item = { id: Date.now(), title: fd.get('title'), image: fd.get('image')||'images/webDevcard.webp', description: fd.get('description') };
+        App.addService(item); svcForm.reset(); renderLists();
+      });
+
+      testForm.addEventListener('submit', e=>{
+        e.preventDefault();
+        const fd = new FormData(testForm);
+        const item = { id: Date.now(), name: fd.get('name'), role: fd.get('role'), comment: fd.get('comment') };
+        App.addTestimonial(item); testForm.reset(); renderLists();
+      });
+
+      svcList.addEventListener('click', e=>{
+        const id = e.target.getAttribute('data-id'); if(!id) return; App.deleteService(Number(id)); renderLists();
+      });
+      testList.addEventListener('click', e=>{
+        const id = e.target.getAttribute('data-id'); if(!id) return; App.deleteTestimonial(Number(id)); renderLists();
+      });
+
+      clearBtn.addEventListener('click', ()=>{ if(confirm('Clear stored data?')){ localStorage.removeItem('naivacom-services'); localStorage.removeItem('naivacom-testimonials'); location.reload(); } });
+
+      renderLists();
+    });
+  </script>
+</body>
+</html>

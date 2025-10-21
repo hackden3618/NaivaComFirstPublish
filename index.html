@@ -36,22 +36,36 @@
         </ul>
       </nav>
 
-      <button
-        class="hamburgerMenuBtn"
-        aria-expanded="false"
-        aria-controls="primary-navigation"
-        aria-label="Open menu"
-        data-toggle="nav"
+      <div
+        class="header-controls"
+        style="display: flex; align-items: center; gap: 8px"
       >
-        <img
-          src="images/icons/hambugerMenuIcon-removebg.png"
-          alt="Open menu icon"
-        />
-      </button>
+        <button
+          id="theme-toggle"
+          class="themeToggle"
+          aria-pressed="false"
+          aria-label="Switch to light mode"
+        >
+          🌙
+        </button>
+        <button
+          class="hamburgerMenuBtn"
+          aria-expanded="false"
+          aria-controls="primary-navigation"
+          aria-label="Open menu"
+          data-toggle="nav"
+        >
+          <img
+            src="images/icons/hambugerMenuIcon-removebg.png"
+            alt="Open menu icon"
+          />
+        </button>
+      </div>
     </header>
 
     <section id="home" class="home">
-      <div class="homeContainer">
+      <div class="hero">
+        <div class="homeContainer">
         <div class="webIntro">
           <h1 class="introTitle">
             Beat Competition with Science-Backed Internet leverage
@@ -85,9 +99,10 @@
           <button class="exploreBtn">Explore</button>
           <button class="buildBtn">Build ></button>
         </div>
-      </div>
+  </div>
+  </div>
 
-      <div id="about" class="homeAboutContainer">
+  <div id="about" class="homeAboutContainer">
         <h1 class="whoWe">Who are we?</h1>
         <h2 id="team" class="teamTitle">Our Team</h2>
         <div class="whoWeDesc">
