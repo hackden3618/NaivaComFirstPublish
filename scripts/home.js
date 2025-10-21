@@ -46,9 +46,9 @@ const App = (() => {
     if (!container) return;
     container.innerHTML = "";
     servicesModel.forEach((s, i) => {
-      const cardWrap = document.createElement('div');
-      cardWrap.className = 'svsItem reveal';
-      cardWrap.style.animationDelay = (i*60) + 'ms';
+      const cardWrap = document.createElement("div");
+      cardWrap.className = "svsItem reveal";
+      cardWrap.style.animationDelay = i * 60 + "ms";
       const card = document.createElement("article");
       card.className = "card";
       card.innerHTML = `
@@ -73,9 +73,9 @@ const App = (() => {
     if (!container) return;
     container.innerHTML = "";
     testimonialsModel.forEach((t, i) => {
-      const node = document.createElement('blockquote');
-      node.className = 'testimonial-card reveal';
-      node.style.animationDelay = (i*70) + 'ms';
+      const node = document.createElement("blockquote");
+      node.className = "testimonial-card reveal";
+      node.style.animationDelay = i * 70 + "ms";
       node.innerHTML = `
         <p class="quote">${escapeHtml(t.comment)}</p>
         <footer>
@@ -111,20 +111,35 @@ const App = (() => {
   }
 
   // storage
-  function save(){
-    try{
-      localStorage.setItem('naivacom-services', JSON.stringify(servicesModel));
-      localStorage.setItem('naivacom-testimonials', JSON.stringify(testimonialsModel));
-    }catch(e){console.warn('Could not save data',e)}
+  function save() {
+    try {
+      localStorage.setItem("naivacom-services", JSON.stringify(servicesModel));
+      localStorage.setItem(
+        "naivacom-testimonials",
+        JSON.stringify(testimonialsModel)
+      );
+    } catch (e) {
+      console.warn("Could not save data", e);
+    }
   }
 
-  function load(){
-    try{
-      const s = JSON.parse(localStorage.getItem('naivacom-services')||'null');
-      const t = JSON.parse(localStorage.getItem('naivacom-testimonials')||'null');
-      if(Array.isArray(s) && s.length) { servicesModel.length=0; servicesModel.push(...s); }
-      if(Array.isArray(t) && t.length) { testimonialsModel.length=0; testimonialsModel.push(...t); }
-    }catch(e){console.warn('Could not load stored data', e)}
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem("naivacom-services") || "null");
+      const t = JSON.parse(
+        localStorage.getItem("naivacom-testimonials") || "null"
+      );
+      if (Array.isArray(s) && s.length) {
+        servicesModel.length = 0;
+        servicesModel.push(...s);
+      }
+      if (Array.isArray(t) && t.length) {
+        testimonialsModel.length = 0;
+        testimonialsModel.push(...t);
+      }
+    } catch (e) {
+      console.warn("Could not load stored data", e);
+    }
   }
 
   // Utilities
@@ -215,8 +230,22 @@ const App = (() => {
     setTestimonials,
     getServices: () => servicesModel.slice(),
     getTestimonials: () => testimonialsModel.slice(),
-    deleteService(id){ const idx = servicesModel.findIndex(s=>s.id===id); if(idx>-1){servicesModel.splice(idx,1); save(); renderServices();} },
-    deleteTestimonial(id){ const idx = testimonialsModel.findIndex(t=>t.id===id); if(idx>-1){testimonialsModel.splice(idx,1); save(); renderTestimonials();} }
+    deleteService(id) {
+      const idx = servicesModel.findIndex((s) => s.id === id);
+      if (idx > -1) {
+        servicesModel.splice(idx, 1);
+        save();
+        renderServices();
+      }
+    },
+    deleteTestimonial(id) {
+      const idx = testimonialsModel.findIndex((t) => t.id === id);
+      if (idx > -1) {
+        testimonialsModel.splice(idx, 1);
+        save();
+        renderTestimonials();
+      }
+    },
   };
 })();
 

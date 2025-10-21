@@ -20,7 +20,11 @@ html.light {
   color: #0b1220;
 }
 
-html.light h1, html.light h2, html.light h3 { color: #0b1220; }
+html.light h1,
+html.light h2,
+html.light h3 {
+  color: #0b1220;
+}
 
 /* In light mode prefer a clean background (no heavy neon image) for readability */
 html.light body {
