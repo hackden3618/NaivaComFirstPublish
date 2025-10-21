@@ -227,6 +227,10 @@
   align-items: start;
 }
 
+.svsLinkers{
+  text-decoration: none;
+}
+
 .svsItem {
   width: 100%;
   display: flex;

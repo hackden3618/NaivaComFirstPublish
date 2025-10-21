@@ -54,8 +54,7 @@ const App = (() => {
       cardWrap.style.animationDelay = i * 60 + "ms";
       const card = document.createElement("article");
       card.className = "card";
-      card.innerHTML = `
-        ${
+      card.innerHTML = ` <a class="svsLinkers" href="build.html">${
           s.image
             ? `<img src="${s.image}" alt="${escapeHtml(
                 s.title
@@ -65,7 +64,8 @@ const App = (() => {
         <div class="card-body">
           <h3>${escapeHtml(s.title)}</h3>
           <p class="muted">${escapeHtml(s.description)}</p>
-        </div>`;
+        </div></a>
+        `;
       cardWrap.appendChild(card);
       container.appendChild(cardWrap);
     });
