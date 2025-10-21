@@ -39,6 +39,7 @@ const App = (() => {
   // Models
   const servicesModel = [];
   const testimonialsModel = [];
+  const teamModel = [];
   const projectsModel = [];
 
   // Views
@@ -76,7 +77,11 @@ const App = (() => {
     let changed = false;
     testimonialsModel.forEach((t, i) => {
       // ensure there is a numeric rating 0-100; if missing, generate a random one and persist
-      if (typeof t.rating === "undefined" || t.rating === null || isNaN(Number(t.rating))) {
+      if (
+        typeof t.rating === "undefined" ||
+        t.rating === null ||
+        isNaN(Number(t.rating))
+      ) {
         t.rating = Math.floor(Math.random() * 36) + 60; // random 60-95
         changed = true;
       }
@@ -91,7 +96,7 @@ const App = (() => {
       const starsRounded = Math.round(normalized / 2); // 0-5 integer
       const full = starsRounded;
       const empty = 5 - full;
-      const starStr = '★'.repeat(full) + '☆'.repeat(empty);
+      const starStr = "★".repeat(full) + "☆".repeat(empty);
 
       node.innerHTML = `
         <div class="tweet">
@@ -104,7 +109,7 @@ const App = (() => {
             )}</strong> <span class="role">${escapeHtml(
         t.role || ""
       )}</span> <span class="rating">${starStr} <small class="muted">(${(
-        (Math.round((normalized / 2) * 10) / 10)
+        Math.round((normalized / 2) * 10) / 10
       ).toFixed(1)}/5)</small></span></div>
             <p class="quote">${escapeHtml(t.comment)}</p>
           </div>
@@ -148,6 +153,27 @@ const App = (() => {
     });
   }
 
+  function renderTeam(containerId = "team-list") {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    teamModel.forEach((m, i) => {
+      const row = document.createElement("div");
+      row.className = "team-card reveal";
+      row.style.animationDelay = i * 60 + "ms";
+      row.innerHTML = `<img class="team-thumb" src="${escapeHtml(
+        m.avatar || "images/icons/default-avatar.svg"
+      )}" alt="${escapeHtml(
+        m.name
+      )}"/><div class="team-info"><strong>${escapeHtml(
+        m.name
+      )}</strong><div class="team-role">${escapeHtml(
+        m.role || ""
+      )}</div></div>`;
+      container.appendChild(row);
+    });
+  }
+
   // Controller
   function addService(item) {
     servicesModel.push(item);
@@ -176,6 +202,25 @@ const App = (() => {
     renderProjects();
     save();
   }
+  function addTeam(item) {
+    teamModel.push(item);
+    renderTeam();
+    save();
+  }
+  function setTeam(items) {
+    teamModel.length = 0;
+    teamModel.push(...items);
+    renderTeam();
+    save();
+  }
+  function updateTeam(item) {
+    const idx = teamModel.findIndex((t) => t.id === item.id);
+    if (idx > -1) {
+      teamModel[idx] = Object.assign({}, teamModel[idx], item);
+      save();
+      renderTeam();
+    }
+  }
   function setTestimonials(items) {
     testimonialsModel.length = 0;
     testimonialsModel.push(...items);
@@ -192,6 +237,7 @@ const App = (() => {
         JSON.stringify(testimonialsModel)
       );
       localStorage.setItem("naivacom-projects", JSON.stringify(projectsModel));
+      localStorage.setItem("naivacom-team", JSON.stringify(teamModel));
     } catch (e) {
       console.warn("Could not save data", e);
     }
@@ -215,6 +261,11 @@ const App = (() => {
       if (Array.isArray(p) && p.length) {
         projectsModel.length = 0;
         projectsModel.push(...p);
+      }
+      const tm = JSON.parse(localStorage.getItem("naivacom-team") || "null");
+      if (Array.isArray(tm) && tm.length) {
+        teamModel.length = 0;
+        teamModel.push(...tm);
       }
     } catch (e) {
       console.warn("Could not load stored data", e);
@@ -331,6 +382,7 @@ const App = (() => {
     getServices: () => servicesModel.slice(),
     getTestimonials: () => testimonialsModel.slice(),
     getProjects: () => projectsModel.slice(),
+    getTeams: () => teamModel.slice(),
     deleteService(id) {
       const idx = servicesModel.findIndex((s) => s.id === id);
       if (idx > -1) {
@@ -355,6 +407,17 @@ const App = (() => {
         renderProjects();
       }
     },
+    deleteTeam(id) {
+      const idx = teamModel.findIndex((t) => t.id === id);
+      if (idx > -1) {
+        teamModel.splice(idx, 1);
+        save();
+        renderTeam();
+      }
+    },
+    addTeam,
+    updateTeam,
+    setTeam,
   };
 })();
 

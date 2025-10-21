@@ -165,10 +165,11 @@
   transition: all 0.2s;
 }
 .buildBtn:hover {
-  color: var(--accent);
-  background-color: #196b2b;
+  /* switch to brand accent color on hover; use !important to override gradient classes */
+  background: var(--accent) !important;
+  color: white !important;
   text-shadow: none;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 .homeAboutContainer {
   display: grid;
@@ -323,12 +324,36 @@
 }
 
 /* tweet-style testimonial */
-.testimonial-card.tweet-style { padding: 12px; display: flex; align-items: flex-start; gap: 12px; }
-.testimonial-card.tweet-style .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: 0 0 56px; }
-.testimonial-card.tweet-style .tweet-body { flex: 1; }
-.testimonial-card.tweet-style .tweet-header { display:flex; gap:8px; align-items:center; font-size:0.95rem; }
-.testimonial-card.tweet-style .rating { margin-left: auto; color: var(--accent); font-weight:700; }
-.testimonial-card.tweet-style .quote { margin:8px 0 0 0; }
+.testimonial-card.tweet-style {
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.testimonial-card.tweet-style .avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: 0 0 56px;
+}
+.testimonial-card.tweet-style .tweet-body {
+  flex: 1;
+}
+.testimonial-card.tweet-style .tweet-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.95rem;
+}
+.testimonial-card.tweet-style .rating {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 700;
+}
+.testimonial-card.tweet-style .quote {
+  margin: 8px 0 0 0;
+}
 
 @media (max-width: 640px) {
   .card img {
@@ -393,4 +418,26 @@ html.light .contacts {
 /* testimonial quote color for light mode */
 html.light .testimonial-card .quote {
   color: #444444; /* dark gray for good contrast */
+}
+
+/* Additional light mode tweaks for home page */
+html.light .introTitle,
+html.light .moreIntro {
+  color: #0b1220;
+}
+html.light .unit .value {
+  color: var(--accent);
+}
+html.light .whoWeDesc {
+  background: rgba(255, 255, 255, 0.96);
+  color: #0b1220;
+}
+html.light .buildBtn {
+  background: linear-gradient(90deg, #2b6be6, #4f9ef6);
+  color: #fff;
+}
+html.light .button-like {
+  color: #0b1220;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }

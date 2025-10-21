@@ -57,8 +57,16 @@
           <input name="name" placeholder="Name" required />
           <input name="role" placeholder="Role / Company" />
           <input name="avatar" placeholder="Avatar image path (optional)" />
-          <label style="font-size:0.85rem;color:var(--muted)">Rating (0-100, e.g. 85)</label>
-          <input name="rating" type="number" min="0" max="100" placeholder="Score out of 100 (tens)" />
+          <label style="font-size: 0.85rem; color: var(--muted)"
+            >Rating (0-100, e.g. 85)</label
+          >
+          <input
+            name="rating"
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Score out of 100 (tens)"
+          />
           <textarea name="comment" placeholder="Comment" required></textarea>
           <button type="submit">Add Testimonial</button>
         </form>
@@ -170,6 +178,30 @@
         const projList = document.getElementById("admin-projects-list");
         const testForm = document.getElementById("testimonial-form");
         const testList = document.getElementById("admin-testimonials-list");
+        // Team management elements
+        const teamForm = (function createTeamForm() {
+          // inject a small team section into the DOM so markup is centralized here
+          const sec = document.createElement("section");
+          sec.id = "admin-team";
+          sec.innerHTML = `
+            <h2>Employ / Lay Off team</h2>
+            <form id="team-form">
+              <input name="name" placeholder="Full name" required />
+              <input name="role" placeholder="Role / Title" />
+              <input name="avatar" placeholder="Avatar image path (optional)" />
+              <textarea name="bio" placeholder="Short bio (optional)"></textarea>
+              <button type="submit">Hire / Add team member</button>
+            </form>
+            <div class="list" id="admin-team-list"></div>
+          `;
+          // insert before the clear-data button (which appears later)
+          const main = document.querySelector("main");
+          const clearBtnNode = document.getElementById("clear-data");
+          if (clearBtnNode) main.insertBefore(sec, clearBtnNode);
+          else main.appendChild(sec);
+          return document.getElementById("team-form");
+        })();
+        const teamList = document.getElementById("admin-team-list");
         const clearBtn = document.getElementById("clear-data");
         const toggleEditBtn = document.getElementById("toggle-edit");
         const editStatus = document.getElementById("edit-status");
@@ -185,7 +217,7 @@
             editEnabled ? "1" : "0"
           );
           // enable/disable forms
-          [svcForm, testForm, projForm].forEach((f) => {
+          [svcForm, testForm, projForm, teamForm].forEach((f) => {
             if (!f) return;
             Array.from(f.querySelectorAll("input,textarea,button")).forEach(
               (el) => {
@@ -243,15 +275,23 @@
             row.className = "row";
             row.innerHTML = `
               <div class="meta">
-                <img class="thumb" src="${t.avatar || 'images/icons/default-avatar.svg'}" alt="${t.name}" />
+                <img class="thumb" src="${
+                  t.avatar || "images/icons/default-avatar.svg"
+                }" alt="${t.name}" />
                 <div>
                   <strong>${t.name}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${t.role || ""}</div>
-                  <div style="font-size:0.85rem;color:var(--muted)">Rating: ${t.rating || ''}</div>
+                  <div style="font-size:0.9rem;color:var(--muted);">${
+                    t.role || ""
+                  }</div>
+                  <div style="font-size:0.85rem;color:var(--muted)">Rating: ${
+                    t.rating || ""
+                  }</div>
                 </div>
               </div>
               <div>
-                <button class="viewBtn" data-type="testimonial" data-id="${t.id}">View</button>
+                <button class="viewBtn" data-type="testimonial" data-id="${
+                  t.id
+                }">View</button>
                 <button data-id="${t.id}">Delete</button>
               </div>`;
             testList.appendChild(row);
@@ -280,6 +320,33 @@
                 <button data-id="${p.id}">Delete</button>
               </div>`;
             projList.appendChild(row);
+          });
+
+          // team list
+          teamList.innerHTML = "";
+          (App.getTeams() || []).forEach((m) => {
+            const row = document.createElement("div");
+            row.className = "row";
+            row.innerHTML = `
+              <div class="meta">
+                <img class="thumb" src="${
+                  m.avatar || "images/icons/default-avatar.svg"
+                }" alt="${m.name}" />
+                <div>
+                  <strong>${m.name}</strong>
+                  <div style="font-size:0.9rem;color:var(--muted);">${
+                    m.role || ""
+                  }</div>
+                </div>
+              </div>
+              <div>
+                <button class="viewBtn" data-type="team" data-id="${
+                  m.id
+                }">View</button>
+                <button data-action="edit" data-id="${m.id}">Edit</button>
+                <button data-id="${m.id}">Delete</button>
+              </div>`;
+            teamList.appendChild(row);
           });
         }
 
@@ -321,6 +388,32 @@
           };
           App.addTestimonial(item);
           testForm.reset();
+          renderLists();
+        });
+
+        teamForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!editEnabled) {
+            alert("Enable editing to add team members");
+            return;
+          }
+          // per-action auth
+          const pw = prompt("Admin password required to add a team member:");
+          if (pw !== "komoKomo") {
+            alert("Authentication failed");
+            return;
+          }
+          if (!confirm("Confirm hire this team member?")) return;
+          const fd = new FormData(teamForm);
+          const item = {
+            id: Date.now(),
+            name: fd.get("name"),
+            role: fd.get("role") || "",
+            avatar: fd.get("avatar") || "images/icons/default-avatar.svg",
+            bio: fd.get("bio") || "",
+          };
+          App.addTeam(item);
+          teamForm.reset();
           renderLists();
         });
 
@@ -375,6 +468,58 @@
           if (!confirm("Delete this project? This action cannot be undone."))
             return;
           App.deleteProject(Number(id));
+          renderLists();
+        });
+
+        // team list actions (edit/delete/view)
+        teamList.addEventListener("click", (e) => {
+          const id = e.target.getAttribute("data-id");
+          const action = e.target.getAttribute("data-action");
+          if (!id) return;
+          if (!editEnabled && action !== null) {
+            alert("Enable editing to modify team");
+            return;
+          }
+          if (action === "edit") {
+            // per-action auth
+            const pw = prompt("Admin password required to edit team member:");
+            if (pw !== "komoKomo") {
+              alert("Authentication failed");
+              return;
+            }
+            const existing = App.getTeams().find((t) => t.id === Number(id));
+            if (!existing) return alert("Member not found");
+            // simple prompt-based edit
+            const name = prompt("Full name:", existing.name) || existing.name;
+            const role =
+              prompt("Role / Title:", existing.role) || existing.role;
+            const avatar =
+              prompt("Avatar path (leave blank to keep):", existing.avatar) ||
+              existing.avatar;
+            const bio = prompt("Short bio:", existing.bio) || existing.bio;
+            const updated = Object.assign({}, existing, {
+              name,
+              role,
+              avatar,
+              bio,
+            });
+            if (!confirm("Save changes to this team member?")) return;
+            App.updateTeam(updated);
+            renderLists();
+            return;
+          }
+          // delete
+          if (
+            !confirm("Remove this team member? This action cannot be undone.")
+          )
+            return;
+          // per-action auth
+          const pw2 = prompt("Admin password required to remove team member:");
+          if (pw2 !== "komoKomo") {
+            alert("Authentication failed");
+            return;
+          }
+          App.deleteTeam(Number(id));
           renderLists();
         });
 
@@ -443,7 +588,7 @@
           viewDesc.textContent = data.description || data.comment || "";
           viewExtra.textContent = data.role ? `Role: ${data.role}` : "";
           // if testimonial, show avatar in preview
-          if (type === 'testimonial' && data.avatar) {
+          if (type === "testimonial" && data.avatar) {
             viewPreview.src = data.avatar;
             viewPreview.style.display = "";
           } else if (data.image) {
@@ -459,15 +604,20 @@
             viewLink.style.display = "none";
           }
           // if testimonial, append rating stars to extra
-          if(type === 'testimonial'){
+          if (type === "testimonial") {
             const score = Number(data.rating || 0);
             const normalized = Math.max(0, Math.min(100, score)) / 10; // 0-10
             const stars = Math.round((normalized / 2) * 2) / 2; // 0-5 steps
             const full = Math.floor(stars);
             const half = stars - full >= 0.5 ? 1 : 0;
             const empty = 5 - full - half;
-            const starStr = '★'.repeat(full) + (half ? '☆' : '') + '☆'.repeat(empty);
-            viewExtra.textContent = (data.role ? `Role: ${data.role} ` : '') + ' ' + starStr + ` (${(Math.round((normalized/2)*10)/10).toFixed(1)}/5)`;
+            const starStr =
+              "★".repeat(full) + (half ? "☆" : "") + "☆".repeat(empty);
+            viewExtra.textContent =
+              (data.role ? `Role: ${data.role} ` : "") +
+              " " +
+              starStr +
+              ` (${(Math.round((normalized / 2) * 10) / 10).toFixed(1)}/5)`;
           }
           viewModal.style.display = "flex";
           closeBtn.focus();

@@ -29,7 +29,7 @@ html.light h3 {
 /* In light mode prefer a clean background (no heavy neon image) for readability */
 html.light body {
   /* use the luxurious light background image for light theme */
-  background-image: url("images/icons/luxuriousBackgroundLight_imgupscaler.ai_General_4K.jpg");
+  background-image: url("../images/icons/luxuriousBackgroundLight_imgupscaler.ai_General_4K.jpg");
   background-position: center;
   background-attachment: fixed;
   background-size: cover;
@@ -89,6 +89,11 @@ a.button-like {
   align-items: center;
   gap: 8px;
 }
+/* gradient primary used by build submit button */
+.primary-gradient {
+  background: linear-gradient(90deg, #2b6be6, #2563eb);
+  color: white;
+}
 button:hover,
 .headerBtns:hover,
 a.button-like:hover {
@@ -125,6 +130,66 @@ textarea {
   background: rgba(255, 255, 255, 0.02);
   color: inherit;
 }
+
+/* Link colors: green by default, red when clicked/visited/active */
+a,
+a.button-like,
+.headerBtns {
+  color: #16a34a; /* green-600 */
+}
+a:visited,
+a:active {
+  color: #ef4444; /* red-500 */
+}
+
+/* Buttons / button-like elements should always show white text for clarity */
+button,
+.button-like,
+.primary-gradient,
+.buildBtn,
+input[type="submit"] {
+  color: white !important;
+}
+
+/* Header links should stay white for consistent header appearance */
+.headerBtns,
+.headerBtns:visited,
+.headerBtns:active {
+  color: white !important;
+}
+
+/* In light mode, buttons should use dark text for contrast */
+html.light button,
+html.light .button-like,
+html.light .primary-gradient,
+html.light .buildBtn,
+html.light input[type="submit"] {
+  color: #0b1220 !important;
+}
+
+/* Brand name accent in header (goldish) */
+.brandName {
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+
+/* Map preview used across pages */
+.map-preview {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.45);
+  background: rgba(0, 0, 0, 0.12);
+}
+.map-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 input::placeholder,
 textarea::placeholder {
   /* use the --muted variable so placeholder remains visible in both themes */
@@ -141,4 +206,79 @@ textarea::placeholder {
 }
 .themeToggle[aria-pressed="true"] {
   background: var(--glass);
+}
+
+/* Team grid styling */
+.team-grid {
+  margin-top: 22px;
+  padding: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 34, 46, 0.5),
+    rgba(26, 34, 46, 0.5)
+  );
+  border-radius: 14px;
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.team-grid .section-title {
+  margin: 0 0 6px 0;
+  font-size: 1.35rem;
+}
+.team-grid .team-sub {
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.team-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.team-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.team-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex: 0 0 72px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.team-body {
+  display: flex;
+  flex-direction: column;
+}
+.team-name {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.team-role {
+  margin: 6px 0 0 0;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 700px) {
+  .team-cards {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .team-avatar {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+  }
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NaivaCom Home</title>
-    <link rel="icon" href="images/icons/NaivaComLogo-removebg.png" />
+    <link rel="icon" href="../images/icons/NaivaComLogo-removebg.png" />
     <link rel="stylesheet" href="styles/general.css" />
     <link rel="stylesheet" href="styles/header.css" />
     <link rel="stylesheet" href="styles/home.css" />
@@ -95,9 +95,15 @@
           </div>
 
           <div class="actions">
-            <button class="conslitBtn">Consult Us</button>
-            <button class="exploreBtn">Explore</button>
-            <button class="buildBtn">Build ></button>
+            <a href="contacts" class="conslitBtn button-like">Consult Us</a>
+            <a href="#services" class="exploreBtn button-like">Explore</a>
+            <a
+              href="build.html"
+              target="_blank"
+              rel="noopener"
+              class="buildBtn button-like primary-gradient"
+              >Build &gt;</a
+            >
           </div>
         </div>
       </div>
@@ -140,8 +146,62 @@
           </ul>
         </div>
         <div class="findMoreBtn">
-          <a href="#services" class="button-like">Find out More &gt;</a>
+          <a href="blog.html" class="button-like">Find out More &gt;</a>
         </div>
+        <!-- Team grid -->
+        <section id="team-grid" class="team-grid" aria-label="Our Team">
+          <h2 class="section-title">Meet the Team</h2>
+          <p class="team-sub">
+            A group of experienced professionals dedicated to building
+            high-quality web experiences.
+          </p>
+          <div class="team-cards">
+            <article class="team-card">
+              <img
+                class="team-avatar"
+                src="images/icons/default-avatar.svg"
+                alt="Aisha Mwangi"
+              />
+              <div class="team-body">
+                <h3 class="team-name">Aisha Mwangi</h3>
+                <p class="team-role">Founder & CEO</p>
+              </div>
+            </article>
+            <article class="team-card">
+              <img
+                class="team-avatar"
+                src="images/icons/default-avatar.svg"
+                alt="John Otieno"
+              />
+              <div class="team-body">
+                <h3 class="team-name">John Otieno</h3>
+                <p class="team-role">Chief Technology Officer</p>
+              </div>
+            </article>
+            <article class="team-card">
+              <img
+                class="team-avatar"
+                src="images/icons/default-avatar.svg"
+                alt="Marta Kimani"
+              />
+              <div class="team-body">
+                <h3 class="team-name">Marta Kimani</h3>
+                <p class="team-role">Lead Product Designer</p>
+              </div>
+            </article>
+            <article class="team-card">
+              <img
+                class="team-avatar"
+                src="images/icons/default-avatar.svg"
+                alt="Dev Team"
+              />
+              <div class="team-body">
+                <h3 class="team-name">Development Team</h3>
+                <p class="team-role">Full-stack Engineers</p>
+              </div>
+            </article>
+          </div>
+        </section>
       </div>
 
       <section id="services" class="services">
@@ -179,9 +239,9 @@
         >
           <p>
             Email:
-            <a href="mailto:hello@naivacom.example">hello@naivacom.example</a>
+            <a href="mailto:info@naivacom.example">info@naivacom.com</a>
           </p>
-          <p>Phone: <a href="tel:+254700000000">+254 700 000 000</a></p>
+          <p>Phone: <a href="tel:+254 796 185828">+254 796 185828</a></p>
           <form style="display: flex; flex-direction: column; gap: 8px">
             <input type="text" name="name" placeholder="Your name" />
             <input type="email" name="email" placeholder="Your email" />
@@ -192,6 +252,20 @@
             ></textarea>
             <button type="submit">Send</button>
           </form>
+          <div style="margin-top: 12px">
+            <h3>Our location</h3>
+            <a
+              href="https://www.google.com/maps?q=Vienna+Courts+Kilimani+Nairobi+PO+Box+50138-00100+Nairobi+GPO"
+              class="map-preview"
+              target="_blank"
+              rel="noopener"
+            >
+              <iframe
+                src="https://www.google.com/maps?q=Vienna+Courts+Kilimani+Nairobi+PO+Box+50138-00100+Nairobi+GPO&output=embed"
+                aria-hidden="true"
+              ></iframe>
+            </a>
+          </div>
         </div>
       </div>
     </section>
