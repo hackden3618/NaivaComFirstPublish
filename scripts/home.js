@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* Simple MVC for Services and Testimonials */
 const App = (() => {
   // Models
-  const servicesModel = [];
+  const servicesOffered = [];
   const testimonialsModel = [];
   // store team members in an object array named `teamMembers`
   const teamMembers = [];
@@ -48,7 +48,7 @@ const App = (() => {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = "";
-    servicesModel.forEach((s, i) => {
+    servicesOffered.forEach((s, i) => {
       const cardWrap = document.createElement("div");
       cardWrap.className = "svsItem reveal";
       cardWrap.style.animationDelay = i * 60 + "ms";
@@ -184,15 +184,23 @@ const App = (() => {
 
   // Controller
   function addService(item) {
-    servicesModel.push(item);
+    servicesOffered.push(item);
     renderServices();
     save();
   }
   function setServices(items) {
-    servicesModel.length = 0;
-    servicesModel.push(...items);
+    servicesOffered.length = 0;
+    servicesOffered.push(...items);
     renderServices();
     save();
+  }
+  function updateService(item) {
+    const idx = servicesOffered.findIndex((s) => s.id === item.id);
+    if (idx > -1) {
+      servicesOffered[idx] = Object.assign({}, servicesOffered[idx], item);
+      save();
+      renderServices();
+    }
   }
   function addTestimonial(item) {
     testimonialsModel.push(item);
@@ -203,6 +211,14 @@ const App = (() => {
     projectsModel.push(item);
     renderProjects();
     save();
+  }
+  function updateProject(item) {
+    const idx = projectsModel.findIndex((p) => p.id === item.id);
+    if (idx > -1) {
+      projectsModel[idx] = Object.assign({}, projectsModel[idx], item);
+      save();
+      renderProjects();
+    }
   }
   function setProjects(items) {
     projectsModel.length = 0;
@@ -229,6 +245,18 @@ const App = (() => {
       renderTeam();
     }
   }
+
+  // move a team member to a new index (0-based). Use for ranking where rank1 === index 0
+  function moveTeam(id, newIndex) {
+    const idx = teamMembers.findIndex((t) => t.id === id);
+    if (idx === -1) return;
+    const item = teamMembers.splice(idx, 1)[0];
+    // bound newIndex between 0 and current length
+    const bounded = Math.max(0, Math.min(newIndex, teamMembers.length));
+    teamMembers.splice(bounded, 0, item);
+    save();
+    renderTeam();
+  }
   function setTestimonials(items) {
     testimonialsModel.length = 0;
     testimonialsModel.push(...items);
@@ -236,10 +264,22 @@ const App = (() => {
     save();
   }
 
+  function updateTestimonial(item) {
+    const idx = testimonialsModel.findIndex((t) => t.id === item.id);
+    if (idx > -1) {
+      testimonialsModel[idx] = Object.assign({}, testimonialsModel[idx], item);
+      save();
+      renderTestimonials();
+    }
+  }
+
   // storage
   function save() {
     try {
-      localStorage.setItem("naivacom-services", JSON.stringify(servicesModel));
+      localStorage.setItem(
+        "naivacom-services",
+        JSON.stringify(servicesOffered)
+      );
       localStorage.setItem(
         "naivacom-testimonials",
         JSON.stringify(testimonialsModel)
@@ -259,8 +299,8 @@ const App = (() => {
       );
       const p = JSON.parse(localStorage.getItem("naivacom-projects") || "null");
       if (Array.isArray(s) && s.length) {
-        servicesModel.length = 0;
-        servicesModel.push(...s);
+        servicesOffered.length = 0;
+        servicesOffered.push(...s);
       }
       if (Array.isArray(t) && t.length) {
         testimonialsModel.length = 0;
@@ -398,7 +438,7 @@ const App = (() => {
     init() {
       load();
       // if no saved data, seed with samples
-      if (!servicesModel.length) setServices(sampleServices);
+      if (!servicesOffered.length) setServices(sampleServices);
       else renderServices();
       if (!testimonialsModel.length) setTestimonials(sampleTestimonials);
       else renderTestimonials();
@@ -413,14 +453,14 @@ const App = (() => {
     setServices,
     setTestimonials,
     setProjects,
-    getServices: () => servicesModel.slice(),
+    getServices: () => servicesOffered.slice(),
     getTestimonials: () => testimonialsModel.slice(),
     getProjects: () => projectsModel.slice(),
     getTeams: () => teamMembers.slice(),
     deleteService(id) {
-      const idx = servicesModel.findIndex((s) => s.id === id);
+      const idx = servicesOffered.findIndex((s) => s.id === id);
       if (idx > -1) {
-        servicesModel.splice(idx, 1);
+        servicesOffered.splice(idx, 1);
         save();
         renderServices();
       }
@@ -451,6 +491,10 @@ const App = (() => {
     },
     addTeam,
     updateTeam,
+    moveTeam,
+    updateService,
+    updateProject,
+    updateTestimonial,
     setTeam,
   };
 })();

@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sec = document.createElement("section");
     sec.id = "admin-team";
     sec.innerHTML = `
-      <h2>Employ / Lay Off team</h2>
+      <h2>Manage Your team</h2>
       <form id="team-form">
         <input name="name" placeholder="Full name" required />
         <input name="role" placeholder="Role / Title" />
@@ -70,6 +70,68 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearBtn = document.getElementById("clear-data");
   const toggleEditBtn = document.getElementById("toggle-edit");
   const editStatus = document.getElementById("edit-status");
+
+  // --- Collapsible sections helpers ---
+  function getOrCreateSection(id, nodes) {
+    let sec = document.getElementById(id);
+    if (sec) return sec;
+    // create a section wrapper and move provided nodes into it
+    sec = document.createElement("section");
+    sec.id = id;
+    const first = nodes.find(Boolean);
+    if (!first) return sec;
+    const parent = first.parentNode || document.body;
+    parent.insertBefore(sec, first);
+    nodes.forEach((n) => {
+      if (!n) return;
+      sec.appendChild(n);
+    });
+    return sec;
+  }
+
+  function addCollapsible(sectionEl, key, title) {
+    if (!sectionEl) return;
+    if (sectionEl.dataset.collapsible === "1") return;
+    sectionEl.dataset.collapsible = "1";
+    const header = document.createElement("div");
+    header.className = "admin-section-header";
+    const btn = document.createElement("button");
+    btn.className = "section-toggle";
+    btn.type = "button";
+    btn.setAttribute("aria-expanded", "true");
+    btn.textContent = title;
+    header.appendChild(btn);
+    // collect children to move into content
+    const content = document.createElement("div");
+    content.className = "admin-section-content";
+    // move all children into content
+    while (sectionEl.firstChild) {
+      content.appendChild(sectionEl.firstChild);
+    }
+    sectionEl.appendChild(header);
+    sectionEl.appendChild(content);
+
+    // restore collapsed state
+    const collapsed =
+      localStorage.getItem("naivacom-admin-collapsed-" + key) === "1";
+    if (collapsed) {
+      content.style.display = "none";
+      btn.setAttribute("aria-expanded", "false");
+    }
+
+    btn.addEventListener("click", () => {
+      const isOpen = btn.getAttribute("aria-expanded") === "true";
+      if (isOpen) {
+        btn.setAttribute("aria-expanded", "false");
+        content.style.display = "none";
+        localStorage.setItem("naivacom-admin-collapsed-" + key, "1");
+      } else {
+        btn.setAttribute("aria-expanded", "true");
+        content.style.display = "";
+        localStorage.setItem("naivacom-admin-collapsed-" + key, "0");
+      }
+    });
+  }
 
   // editing is disabled by default; require explicit enable
   let editEnabled = sessionStorage.getItem("naivacom-edit-enabled") === "1";
@@ -98,8 +160,11 @@ document.addEventListener("DOMContentLoaded", () => {
       teamList.innerHTML = "";
       (App.getTeams() || []).forEach((m) => {
         const row = document.createElement("div");
-        row.className = "row";
+        row.className = "row draggable-row";
+        row.setAttribute("draggable", "true");
+        row.dataset.id = String(m.id);
         row.innerHTML = `
+          <span class="drag-handle" title="Drag to reorder" aria-hidden="true">≡</span>
           <div class="meta">
             <img class="thumb" src="${
               m.avatar || "images/icons/default-avatar.svg"
@@ -116,6 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <button data-action="edit" data-type="team" data-id="${
               m.id
             }">Edit</button>
+            <button data-action="rank" data-type="team" data-id="${
+              m.id
+            }">Rank</button>
             <button data-action="delete" data-type="team" data-id="${
               m.id
             }">Delete</button>
@@ -144,6 +212,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="viewBtn" data-type="service" data-id="${
               s.id
             }">View</button>
+            <button data-action="edit" data-type="service" data-id="${
+              s.id
+            }">Edit</button>
             <button data-action="delete" data-type="service" data-id="${
               s.id
             }">Delete</button>
@@ -173,6 +244,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="viewBtn" data-type="testimonial" data-id="${
               t.id
             }">View</button>
+            <button data-action="edit" data-type="testimonial" data-id="${
+              t.id
+            }">Edit</button>
             <button data-action="delete" data-type="testimonial" data-id="${
               t.id
             }">Delete</button>
@@ -201,6 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="viewBtn" data-type="project" data-id="${
               p.id
             }">View</button>
+            <button data-action="edit" data-type="project" data-id="${
+              p.id
+            }">Edit</button>
             <button data-action="delete" data-type="project" data-id="${
               p.id
             }">Delete</button>
@@ -209,6 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
+  // Note: authentication modal and client-side gating removed — edits execute immediately when editing enabled
 
   // wire team form submit
   if (teamForm) {
@@ -244,6 +323,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!editEnabled && action !== "view")
       return alert("Enable editing to perform this action");
 
+    if (action === "rank") {
+      if (
+        type === "team" &&
+        typeof App !== "undefined" &&
+        App.getTeams &&
+        App.moveTeam
+      ) {
+        const list = App.getTeams();
+        const idx = list.findIndex((t) => t.id === id);
+        if (idx === -1) return alert("Team member not found");
+        const input = prompt("Set rank position (1 = top):", String(idx + 1));
+        if (!input) return;
+        const n = Number(input);
+        if (isNaN(n) || n < 1) return alert("Invalid rank");
+        const newIndex = Math.max(0, Math.min(n - 1, list.length - 1));
+        App.moveTeam(id, newIndex);
+        renderLists();
+      }
+      return;
+    }
+
     if (action === "delete") {
       if (!confirm("Delete this item? This cannot be undone.")) return;
       if (type === "team" && App.deleteTeam) App.deleteTeam(id);
@@ -256,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (action === "edit") {
-      // simple prompt-based edit to keep UI small
+      // simple prompt-based edit to keep UI small; require auth before edits
       if (type === "team" && App.getTeams && App.updateTeam) {
         const current = App.getTeams().find((t) => t.id === id);
         if (!current) return alert("Team member not found");
@@ -275,10 +375,72 @@ document.addEventListener("DOMContentLoaded", () => {
           portfolio,
           bio,
         });
-        App.updateTeam(updated.id, updated);
+        App.updateTeam(updated);
         renderLists();
       }
-      // other types could use similar prompts if needed
+      if (type === "service" && App.getServices && App.updateService) {
+        const current = App.getServices().find((s) => s.id === id);
+        if (!current) return alert("Service not found");
+        const title = prompt("Service title:", current.title) || current.title;
+        const description =
+          prompt("Description:", current.description || "") ||
+          current.description;
+        const image =
+          prompt("Image URL:", current.image || "") || current.image;
+        const updated = Object.assign({}, current, {
+          title,
+          description,
+          image,
+        });
+        App.updateService(updated);
+        renderLists();
+      }
+      if (
+        type === "testimonial" &&
+        App.getTestimonials &&
+        App.updateTestimonial
+      ) {
+        const current = App.getTestimonials().find((t) => t.id === id);
+        if (!current) return alert("Testimonial not found");
+        const name = prompt("Name:", current.name) || current.name;
+        const role = prompt("Role:", current.role || "") || current.role;
+        const avatar =
+          prompt("Avatar URL:", current.avatar || "") || current.avatar;
+        const rating = Number(
+          prompt("Rating (0-100):", current.rating || 80) || current.rating
+        );
+        const comment =
+          prompt("Comment:", current.comment || "") || current.comment;
+        const updated = Object.assign({}, current, {
+          name,
+          role,
+          avatar,
+          rating,
+          comment,
+        });
+        App.updateTestimonial(updated);
+        renderLists();
+      }
+      if (type === "project" && App.getProjects && App.updateProject) {
+        const current = App.getProjects().find((p) => p.id === id);
+        if (!current) return alert("Project not found");
+        const title = prompt("Project title:", current.title) || current.title;
+        const description =
+          prompt("Description:", current.description || "") ||
+          current.description;
+        const image =
+          prompt("Image URL:", current.image || "") || current.image;
+        const link =
+          prompt("Project link:", current.link || "") || current.link;
+        const updated = Object.assign({}, current, {
+          title,
+          description,
+          image,
+          link,
+        });
+        App.updateProject(updated);
+        renderLists();
+      }
     }
   });
 
@@ -298,6 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </div>`;
   document.body.appendChild(modal);
+  // Authentication modal removed — edits execute immediately when editing is enabled
   const viewModal = document.getElementById("admin-view-modal");
   const viewPreview = viewModal.querySelector("img.preview");
   const viewTitle = viewModal.querySelector(".title");
@@ -356,6 +519,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = Number(btn.getAttribute("data-id"));
     openViewModal(type, id);
   });
+
+  // Drag-and-drop reordering for team list
+  (function wireDragDrop() {
+    if (!teamList) return;
+    let dragSrc = null;
+
+    teamList.addEventListener("dragstart", (e) => {
+      const row = e.target.closest(".draggable-row");
+      if (!row) return;
+      dragSrc = row;
+      e.dataTransfer.effectAllowed = "move";
+      try {
+        e.dataTransfer.setData("text/plain", row.dataset.id || "");
+      } catch (er) {
+        /* some browsers require setData */
+      }
+      row.classList.add("dragging");
+    });
+
+    teamList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const over = e.target.closest(".draggable-row");
+      if (!over || over === dragSrc) return;
+      const rect = over.getBoundingClientRect();
+      const after = e.clientY > rect.top + rect.height / 2;
+      if (after) {
+        over.parentNode.insertBefore(dragSrc, over.nextSibling);
+      } else {
+        over.parentNode.insertBefore(dragSrc, over);
+      }
+    });
+
+    teamList.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const rows = Array.from(teamList.querySelectorAll(".draggable-row"));
+      const ids = rows.map((r) => Number(r.dataset.id));
+      // reorder team in App according to ids sequence
+      if (typeof App !== "undefined" && App.getTeams && App.setTeam) {
+        const current = App.getTeams();
+        // build new ordered array using current items matching ids
+        const newOrder = ids
+          .map((id) => current.find((c) => c.id === id))
+          .filter(Boolean);
+        if (newOrder.length) App.setTeam(newOrder);
+      } else if (typeof App !== "undefined" && App.moveTeam) {
+        // fallback: call moveTeam for each id to align order
+        ids.forEach((id, idx) => {
+          App.moveTeam(id, idx);
+        });
+      }
+      renderLists();
+    });
+
+    teamList.addEventListener("dragend", (e) => {
+      const row = e.target.closest(".draggable-row");
+      if (row) row.classList.remove("dragging");
+      dragSrc = null;
+    });
+  })();
 
   // wire up other form handlers (services/testimonials/projects) if present
   if (svcForm) {

@@ -257,6 +257,59 @@ textarea::placeholder {
   flex: 0 0 72px;
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
+
+/* Admin collapsible sections */
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.06));
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 8px;
+}
+.admin-section-header .section-toggle {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.admin-section-content {
+  padding: 10px 12px 18px 12px;
+}
+.admin-section.collapsed .admin-section-content {
+  display: none;
+}
+
+/* Drag handle and draggable rows in admin */
+.draggable-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.draggable-row .drag-handle {
+  cursor: grab;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  user-select: none;
+}
+.draggable-row.dragging {
+  opacity: 0.6;
+}
+.draggable-row .meta {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .team-body {
   display: flex;
   flex-direction: column;
@@ -278,6 +331,7 @@ textarea::placeholder {
 .team-name {
   margin: 0;
   font-size: 1.05rem;
+  color: white;
 }
 .team-role {
   margin: 6px 0 0 0;
@@ -294,5 +348,72 @@ textarea::placeholder {
     width: 56px;
     height: 56px;
     flex: 0 0 56px;
+  }
+}
+
+/* Mobile adjustments for admin and general small screens */
+@media (max-width: 600px) {
+  /* Make admin rows stack vertically and buttons full width */
+  .draggable-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 6px;
+  }
+  .draggable-row .meta {
+    order: 1;
+  }
+  .draggable-row .drag-handle {
+    order: 0;
+    justify-self: start;
+    width: 44px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+  .draggable-row > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    order: 2;
+  }
+  .draggable-row > div:last-child button {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-align: left;
+  }
+
+  /* Make form inputs and buttons full width inside admin forms */
+  #team-form input,
+  #team-form textarea,
+  #team-form button,
+  #service-form input,
+  #service-form textarea,
+  #service-form button,
+  #project-form input,
+  #project-form textarea,
+  #project-form button,
+  #testimonial-form input,
+  #testimonial-form textarea,
+  #testimonial-form button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Reduce header/section padding */
+  .admin-section-header {
+    padding: 8px;
+  }
+  .admin-section-content {
+    padding: 8px;
+  }
+
+  /* Hide long previews or compress meta imagery */
+  .draggable-row .meta img.thumb {
+    width: 48px;
+    height: 48px;
   }
 }
