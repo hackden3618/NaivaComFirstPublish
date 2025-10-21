@@ -142,3 +142,89 @@ html.light #pw-form {
   background: rgba(255, 255, 255, 0.95) !important;
   color: #0b1220;
 }
+
+/* extracted from inline styles in admin.html */
+#edit-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#toggle-edit {
+  background: #2b6be6;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+#edit-status {
+  color: var(--muted);
+}
+
+.muted-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+#clear-data {
+  margin-top: 24px;
+  background: #c9302c;
+}
+
+/* Password gate overlay */
+#pw-gate {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
+
+#pw-form {
+  background: rgba(26, 34, 46, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 12px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pw-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.pw-hint {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0;
+}
+#pw-error {
+  color: #f66;
+  display: none;
+  margin: 0;
+}
+
+/* small utility classes used by admin.js templates */
+.muted-small {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.muted-rating {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.externalLink-wrap {
+  margin-top: 12px;
+}
+.externalLink {
+  display: none;
+}

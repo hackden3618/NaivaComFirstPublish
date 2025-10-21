@@ -85,9 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }" alt="${s.title}"/>
                 <div>
                   <strong>${s.title}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${
-                    s.description || ""
-                  }</div>
+                  <div class="muted-small">${s.description || ""}</div>
                 </div>
               </div>
               <div>
@@ -110,12 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }" alt="${t.name}" />
                 <div>
                   <strong>${t.name}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${
-                    t.role || ""
-                  }</div>
-                  <div style="font-size:0.85rem;color:var(--muted)">Rating: ${
-                    t.rating || ""
-                  }</div>
+                  <div class="muted-small">${t.role || ""}</div>
+                  <div class="muted-rating">Rating: ${t.rating || ""}</div>
                 </div>
               </div>
               <div>
@@ -138,9 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }" alt="${p.title}"/>
                 <div>
                   <strong>${p.title}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${
-                    p.description || ""
-                  }</div>
+                  <div class="muted-small">${p.description || ""}</div>
                 </div>
               </div>
               <div>
@@ -280,11 +272,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="closeBtn" aria-label="Close">Close</button>
             <img class="preview" src="" alt="preview image" />
             <div class="meta">
-              <h3 class="title"></h3>
-              <p class="desc"></p>
-              <p class="extra"></p>
-              <p style="margin-top:12px"><a class="externalLink button-like" href="#" target="_blank" rel="noopener" style="display:none">Open link</a></p>
-            </div>
+                <h3 class="title"></h3>
+                <p class="desc"></p>
+                <p class="extra"></p>
+                <p class="externalLink-wrap"><a class="externalLink button-like" href="#" target="_blank" rel="noopener">Open link</a></p>
+              </div>
           </div>`;
   document.body.appendChild(modal);
 

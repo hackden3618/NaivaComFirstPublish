@@ -29,11 +29,13 @@ body {
   gap: 20px;
 }
 .hero-card {
+  margin-top: 60px;
   background: var(--card);
   padding: 18px;
   border-radius: 12px;
 }
 .form-card {
+  margin-top: 60px;
   background: var(--card);
   padding: 18px;
   border-radius: 12px;
@@ -134,4 +136,14 @@ html.light #submitBtn {
 }
 html.light .icons img {
   filter: none;
+}
+
+/* helpers extracted from inline attributes */
+.header-controls--compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.map-preview-wrap {
+  margin-top: 12px;
 }

@@ -111,3 +111,13 @@ html.light .subscribe button {
 html.light .brand.small {
   color: var(--accent);
 }
+
+/* small extracted helpers */
+.header-controls--compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.map-preview-wrap {
+  margin-top: 12px;
+}

@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="styles/general.css" />
     <link rel="stylesheet" href="styles/header.css" />
     <link rel="stylesheet" href="styles/home.css" />
+    <link rel="stylesheet" href="styles/index.css" />
     <script defer src="scripts/home.js"></script>
+    <script defer src="scripts/index.js"></script>
   </head>
   <body>
     <header class="headerHome" role="banner">
@@ -36,10 +38,7 @@
         </ul>
       </nav>
 
-      <div
-        class="header-controls"
-        style="display: flex; align-items: center; gap: 8px"
-      >
+      <div class="header-controls header-controls--compact">
         <button
           id="theme-toggle"
           class="themeToggle"
@@ -95,7 +94,7 @@
           </div>
 
           <div class="actions">
-            <a href="contacts" class="conslitBtn button-like">Consult Us</a>
+            <a href="#contacts" class="conslitBtn button-like">Consult Us</a>
             <a href="#services" class="exploreBtn button-like">Explore</a>
             <a
               href="build.html"
@@ -229,20 +228,13 @@
 
       <div id="contacts" class="contacts">
         <h1>Contacts</h1>
-        <div
-          style="
-            display: flex;
-            gap: 16px;
-            flex-direction: column;
-            max-width: 600px;
-          "
-        >
+        <div class="contacts-inner">
           <p>
             Email:
             <a href="mailto:info@naivacom.example">info@naivacom.com</a>
           </p>
           <p>Phone: <a href="tel:+254 796 185828">+254 796 185828</a></p>
-          <form style="display: flex; flex-direction: column; gap: 8px">
+          <form class="contact-form--stacked">
             <input type="text" name="name" placeholder="Your name" />
             <input type="email" name="email" placeholder="Your email" />
             <textarea
@@ -252,7 +244,7 @@
             ></textarea>
             <button type="submit">Send</button>
           </form>
-          <div style="margin-top: 12px">
+          <div class="map-preview-wrap">
             <h3>Our location</h3>
             <a
               href="https://www.google.com/maps?q=Vienna+Courts+Kilimani+Nairobi+PO+Box+50138-00100+Nairobi+GPO"
