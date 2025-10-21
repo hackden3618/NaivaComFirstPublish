@@ -4,121 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>NaivaCom Admin</title>
+    <link rel="icon" href="images/icons/settingIcon.webp" />
     <link rel="stylesheet" href="styles/general.css" />
     <link rel="stylesheet" href="styles/home.css" />
+    <link rel="stylesheet" href="styles/admin.css" />
     <script defer src="scripts/home.js"></script>
-    <style>
-      main {
-        max-width: 1000px;
-        margin: 40px auto;
-        padding: 20px;
-        background: rgba(26, 34, 46, 0.5);
-        backdrop-filter: blur(8px) saturate(120%);
-        -webkit-backdrop-filter: blur(8px) saturate(120%);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.04);
-      }
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-      .list {
-        display: grid;
-        gap: 8px;
-      }
-      .list .row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-      }
-      .row .meta {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-      }
-      .thumb {
-        width: 56px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 6px;
-        display: inline-block;
-      }
-      /* modal styles */
-      #admin-view-modal {
-        position: fixed;
-        inset: 0;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-      }
-      #admin-view-modal .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-      }
-      #admin-view-modal .dialog {
-        position: relative;
-        max-width: 880px;
-        width: 95%;
-        background: rgba(26, 34, 46, 0.85);
-        color: #fff;
-        padding: 18px;
-        border-radius: 12px;
-        z-index: 10001;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 12px;
-      }
-      #admin-view-modal img.preview {
-        width: 100%;
-        height: auto;
-        max-height: 420px;
-        object-fit: cover;
-        border-radius: 10px;
-      }
-      #admin-view-modal .dialog .meta {
-        font-size: 0.95rem;
-        color: var(--muted);
-      }
-      #admin-view-modal .closeBtn {
-        position: absolute;
-        right: 10px;
-        top: 8px;
-        background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        color: #fff;
-        padding: 6px 8px;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      .row button {
-        background: #d9534f;
-      }
-      /* light-mode admin overrides */
-      html.light main {
-        background: rgba(255, 255, 255, 0.9);
-        color: #0b1220;
-        border: 1px solid rgba(10, 10, 10, 0.06);
-      }
-      html.light .list .row {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-      }
-      html.light #pw-form {
-        background: rgba(255, 255, 255, 0.95) !important;
-        color: #0b1220;
-      }
-    </style>
   </head>
   <body>
     <main>
@@ -166,6 +56,9 @@
         <form id="testimonial-form">
           <input name="name" placeholder="Name" required />
           <input name="role" placeholder="Role / Company" />
+          <input name="avatar" placeholder="Avatar image path (optional)" />
+          <label style="font-size:0.85rem;color:var(--muted)">Rating (0-100, e.g. 85)</label>
+          <input name="rating" type="number" min="0" max="100" placeholder="Score out of 100 (tens)" />
           <textarea name="comment" placeholder="Comment" required></textarea>
           <button type="submit">Add Testimonial</button>
         </form>
@@ -350,17 +243,15 @@
             row.className = "row";
             row.innerHTML = `
               <div class="meta">
+                <img class="thumb" src="${t.avatar || 'images/icons/default-avatar.svg'}" alt="${t.name}" />
                 <div>
                   <strong>${t.name}</strong>
-                  <div style="font-size:0.9rem;color:var(--muted);">${
-                    t.role || ""
-                  }</div>
+                  <div style="font-size:0.9rem;color:var(--muted);">${t.role || ""}</div>
+                  <div style="font-size:0.85rem;color:var(--muted)">Rating: ${t.rating || ''}</div>
                 </div>
               </div>
               <div>
-                <button class="viewBtn" data-type="testimonial" data-id="${
-                  t.id
-                }">View</button>
+                <button class="viewBtn" data-type="testimonial" data-id="${t.id}">View</button>
                 <button data-id="${t.id}">Delete</button>
               </div>`;
             testList.appendChild(row);
@@ -419,10 +310,13 @@
           }
           if (!confirm("Confirm adding this testimonial?")) return;
           const fd = new FormData(testForm);
+          const rawRating = Number(fd.get("rating") || 0);
           const item = {
             id: Date.now(),
             name: fd.get("name"),
             role: fd.get("role"),
+            avatar: fd.get("avatar") || "images/icons/default-avatar.png",
+            rating: rawRating, // store 0-100
             comment: fd.get("comment"),
           };
           App.addTestimonial(item);
@@ -548,7 +442,11 @@
           viewTitle.textContent = data.title || data.name || "Preview";
           viewDesc.textContent = data.description || data.comment || "";
           viewExtra.textContent = data.role ? `Role: ${data.role}` : "";
-          if (data.image) {
+          // if testimonial, show avatar in preview
+          if (type === 'testimonial' && data.avatar) {
+            viewPreview.src = data.avatar;
+            viewPreview.style.display = "";
+          } else if (data.image) {
             viewPreview.src = data.image;
             viewPreview.style.display = "";
           } else {
@@ -559,6 +457,17 @@
             viewLink.style.display = "inline-block";
           } else {
             viewLink.style.display = "none";
+          }
+          // if testimonial, append rating stars to extra
+          if(type === 'testimonial'){
+            const score = Number(data.rating || 0);
+            const normalized = Math.max(0, Math.min(100, score)) / 10; // 0-10
+            const stars = Math.round((normalized / 2) * 2) / 2; // 0-5 steps
+            const full = Math.floor(stars);
+            const half = stars - full >= 0.5 ? 1 : 0;
+            const empty = 5 - full - half;
+            const starStr = '★'.repeat(full) + (half ? '☆' : '') + '☆'.repeat(empty);
+            viewExtra.textContent = (data.role ? `Role: ${data.role} ` : '') + ' ' + starStr + ` (${(Math.round((normalized/2)*10)/10).toFixed(1)}/5)`;
           }
           viewModal.style.display = "flex";
           closeBtn.focus();

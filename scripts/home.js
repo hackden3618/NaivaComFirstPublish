@@ -73,18 +73,45 @@ const App = (() => {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = "";
+    let changed = false;
     testimonialsModel.forEach((t, i) => {
-      const node = document.createElement("blockquote");
-      node.className = "testimonial-card reveal";
+      // ensure there is a numeric rating 0-100; if missing, generate a random one and persist
+      if (typeof t.rating === "undefined" || t.rating === null || isNaN(Number(t.rating))) {
+        t.rating = Math.floor(Math.random() * 36) + 60; // random 60-95
+        changed = true;
+      }
+
+      const node = document.createElement("article");
+      node.className = "testimonial-card tweet-style reveal";
       node.style.animationDelay = i * 70 + "ms";
+
+      // compute star rating from stored rating (0-100) -> 0-5 scale
+      const score = Number(t.rating || 0);
+      const normalized = Math.max(0, Math.min(100, score)) / 10; // 0-10
+      const starsRounded = Math.round(normalized / 2); // 0-5 integer
+      const full = starsRounded;
+      const empty = 5 - full;
+      const starStr = '★'.repeat(full) + '☆'.repeat(empty);
+
       node.innerHTML = `
-        <p class="quote">${escapeHtml(t.comment)}</p>
-        <footer>
-          <strong>${escapeHtml(t.name)}</strong>
-          <span class="role">${escapeHtml(t.role)}</span>
-        </footer>`;
+        <div class="tweet">
+          <img class="avatar" src="${escapeHtml(
+            t.avatar || "images/icons/default-avatar.svg"
+          )}" alt="${escapeHtml(t.name)} avatar" />
+          <div class="tweet-body">
+            <div class="tweet-header"><strong>${escapeHtml(
+              t.name
+            )}</strong> <span class="role">${escapeHtml(
+        t.role || ""
+      )}</span> <span class="rating">${starStr} <small class="muted">(${(
+        (Math.round((normalized / 2) * 10) / 10)
+      ).toFixed(1)}/5)</small></span></div>
+            <p class="quote">${escapeHtml(t.comment)}</p>
+          </div>
+        </div>`;
       container.appendChild(node);
     });
+    if (changed) save();
   }
 
   function renderProjects(containerId = "projects-list") {

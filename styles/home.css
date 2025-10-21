@@ -322,6 +322,14 @@
   color: var(--muted);
 }
 
+/* tweet-style testimonial */
+.testimonial-card.tweet-style { padding: 12px; display: flex; align-items: flex-start; gap: 12px; }
+.testimonial-card.tweet-style .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex: 0 0 56px; }
+.testimonial-card.tweet-style .tweet-body { flex: 1; }
+.testimonial-card.tweet-style .tweet-header { display:flex; gap:8px; align-items:center; font-size:0.95rem; }
+.testimonial-card.tweet-style .rating { margin-left: auto; color: var(--accent); font-weight:700; }
+.testimonial-card.tweet-style .quote { margin:8px 0 0 0; }
+
 @media (max-width: 640px) {
   .card img {
     aspect-ratio: 3 / 2;
