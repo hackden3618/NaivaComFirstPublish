@@ -1,0 +1,206 @@
+@keyframes slideUp {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@media screen and (max-width: 500px) {
+  .stats,
+  .actions {
+    display: flex;
+    flex-direction: column;
+  }
+  .actions {
+    gap: 10px;
+  }
+  .webIntro {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .svsItemContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.home {
+  margin-inline: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 80px;
+}
+.homeContainer,
+.homeAboutContainer,
+.services,
+.testimonials,
+.projects,
+.contacts {
+  background-color: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  flex: 1;
+  margin-bottom: 80px;
+  width: 90%;
+}
+.homeContainer {
+  animation-name: slideUp;
+  animation-duration: 0.6s;
+  animation-fill-mode: forwards;
+}
+
+.introTitle {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+}
+.moreIntro {
+  color: var(--muted);
+  font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation-name: slideLeft;
+  animation-duration: 0.7s;
+  animation-fill-mode: forwards;
+  padding: 15px;
+}
+.unit {
+  padding: 20px;
+}
+.value {
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  color: var(--accent);
+}
+.desc {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: darkgray;
+}
+.actions {
+  display: flex;
+  justify-content: space-around;
+  height: fit-content;
+  animation-name: slideLeft;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  padding: 20px;
+}
+.actions button {
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 10px 24px;
+}
+.buildBtn {
+  background-color: var(--accent);
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
+  transition: all 0.2s;
+}
+.buildBtn:hover {
+  color: var(--accent);
+  background-color: #196b2b;
+  text-shadow: none;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+.homeAboutContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: center;
+  align-items: center;
+  animation-name: slideLeft;
+  animation-duration: 1.3s;
+  animation-fill-mode: forwards;
+}
+.whoWe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.whoWeDesc {
+  background-color: rgb(20, 20, 20);
+  border-radius: 20px;
+  color: var(--muted);
+}
+.whoWeDesc a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.whoWeDesc li {
+  display: flex;
+  flex-direction: column;
+}
+.findMoreBtn {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.findMoreBtn button {
+  font-size: 20px;
+  padding: 10px 40px;
+}
+.services {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.04);
+  flex-wrap: wrap;
+  width: 100%;
+}
+.svsItemContainer {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+.svsItem {
+  background-color: var(--accent);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  height: 250px;
+  align-items: center;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.2s ease;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.7);
+}
+.svsItem:hover {
+  transform: translateY(-6px);
+}
+.svsItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.svsItem p {
+  padding: 30px 5px;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 900px) {
+  .home {
+    margin-top: 72px;
+  }
+  .homeContainer,
+  .homeAboutContainer {
+    width: 95%;
+  }
+}
