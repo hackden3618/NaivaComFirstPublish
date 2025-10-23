@@ -435,6 +435,7 @@ textarea::placeholder {
   margin-top: 18px;
   padding: 28px 0;
   background: var(--glass);
+  width: 100vw;
 }
 .site-footer::before {
   /* full-bleed glassy background strip */
@@ -461,7 +462,6 @@ textarea::placeholder {
   justify-content: space-between;
   gap: 18px;
   align-items: center;
-  max-width: 1200px;
   margin: 0 auto;
   padding-inline: 16px;
   position: relative;

@@ -37,14 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const body = `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nService: ${service}\n\nDetails:\n${details}`;
 
     // open mailto (client will handle sending)
-    sendMailto("info@naivacom", subject + "\n\n" + body, "info@naivacom");
+    sendMailto("info@naivacom.com", subject + "\n\n" + body, "info@naivacom.com");
 
     // also open whatsapp summary
     const waText = `NaivaCom inquiry from ${name} (${email}) - ${service}. Details: ${details}`;
     sendWhatsApp(phone || "+254796185828", waText);
 
     // friendly feedback and reset button after short delay
-  feedback.textContent = `Thank you, ${name}! You've taken a wonderful step ‐ we will follow up shortly.`;
+  feedback.textContent = `Thank you, ${name}! You've taken a wonderful step ~ we will follow up shortly.`;
     setTimeout(() => {
       btn.disabled = false;
       btn.innerHTML = 'Submit project <span id="emoji">✅</span>';

@@ -43,34 +43,94 @@
   margin-top: 80px;
 }
 
-/* hero video background */
-.hero {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  border-radius: 20px;
-  overflow: hidden;
+/* site-wide header height used to calculate hero breakout */
+:root {
+  --header-h: 76px;
 }
+
+/* prevent horizontal overflow when hero becomes full-bleed */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Make header fixed on home so hero can occupy the full viewport */
+.headerHome {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1200;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.35),
+    rgba(10, 10, 10, 0.15)
+  );
+  backdrop-filter: blur(6px);
+}
+
+/* ensure home content sits below fixed header */
 .hero {
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  border-radius: 20px;
-  overflow: hidden;
+  min-height: 100vh; /* full viewport height */
+}
+
+/* Full-screen hero with background image and subtle overlay */
+.hero {
+  /* extend the hero so it reaches behind the fixed header */
+  min-height: calc(100vh + var(--header-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("../images/backgroundHeroimgupscaled2K.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.headerHome {
+  z-index: 1200;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.35),
+    rgba(10, 10, 10, 0.15)
+  );
+  backdrop-filter: blur(6px);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* subtle darken + blur to keep text readable */
+  background: rgba(6, 8, 15, 0.36);
+  /* stronger blur to soften small background points and improve legibility */
+  backdrop-filter: blur(2px) saturate(120%);
+  -webkit-backdrop-filter: blur(2px) saturate(120%);
+  pointer-events: none;
+}
+/* make hero break out of centered container and fill full width */
+.home > .hero {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  /* pull the hero upward so it visually covers the header area (header remains on top) */
+  margin-top: calc(-1 * var(--header-h));
+  /* increase hero height so the visible area covers the viewport plus header */
+  min-height: calc(100vh + var(--header-h));
+  border-radius: 0; /* remove rounding for full-bleed */
+}
+
+/* light-mode background override - uses a lighter hero image */
+html.light .hero {
+  background-image: url("/images/the-man-stands-on-the-balcony-on-the-cityscape-background-hyperlapse_imgupscaler.ai_v1(Fast)_2K.jpg");
+}
+
+/* tweak overlay for light mode for better contrast */
+html.light .hero::before {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(1px) saturate(105%);
 }
 .hero {
   --hero-h: clamp(320px, 40vh, 520px);
-}
-.hero-video {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: contrast(0.9) brightness(0.45);
-  z-index: 0;
-  pointer-events: none;
 }
 .hero-overlay {
   position: absolute;
@@ -86,10 +146,17 @@
   padding: 28px;
 }
 .hero .homeContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+}
+.hero .homeContainer {
   position: relative;
   z-index: 2;
 }
-.homeContainer,
 .homeAboutContainer,
 .services,
 .testimonials,
@@ -97,8 +164,9 @@
 .contacts {
   /* glassy card look: translucent background + backdrop blur */
   background-color: rgba(26, 34, 46, 0.55);
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  /* slightly stronger glass blur for a more modern, security-minded feel */
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
   border-radius: 20px;
   padding: 20px;
   flex: 1;
@@ -113,8 +181,109 @@
   animation-fill-mode: forwards;
 }
 
+/* New modern hero layout (used in index.html) */
+.hero-modern {
+  position: relative;
+}
+.hero-modern .hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  padding: 56px 28px;
+  box-sizing: border-box;
+  display: grid;
+  gap: 18px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .hero-modern .hero-inner {
+    max-width: 1100px;
+    padding: 96px 64px;
+    justify-items: start;
+    text-align: left;
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero-kicker {
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+.hero-title {
+  font-size: clamp(1.6rem, 3.6vw, 3.4rem);
+  margin: 0;
+  color: #fff;
+  line-height: 1.02;
+  font-weight: 800;
+}
+.hero-sub {
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 760px;
+  font-size: 1.05rem;
+}
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+.hero-ctas .button-like {
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.hero-ctas .primary-gradient {
+  background: linear-gradient(90deg, #2b6be6, #4f9ef6);
+  color: #fff;
+}
+.hero-trust {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.hero-trust .trust-item {
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(2px) saturate(120%);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+
+@media (max-width: 480px) {
+  .hero-modern .hero-inner {
+    padding: 24px 18px;
+  }
+  .hero-sub {
+    font-size: 0.98rem;
+  }
+  .hero-trust {
+    gap: 8px;
+  }
+}
+
 .introTitle {
   font-size: clamp(1.6rem, 3vw, 2.6rem);
+}
+.webIntro {
+  /* animate intro with a gentle rise and fade */
+  animation: fadeInUp 900ms ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .moreIntro {
   color: var(--muted);
@@ -131,6 +300,9 @@
   animation-duration: 0.7s;
   animation-fill-mode: forwards;
   padding: 15px;
+}
+.stats {
+  animation: fadeInUp 1100ms ease both;
 }
 .unit {
   padding: 20px;
@@ -153,6 +325,30 @@
   animation-duration: 1s;
   animation-fill-mode: forwards;
   padding: 20px;
+}
+.actions {
+  animation: fadeInUp 1300ms ease both;
+}
+.actions .button-like {
+  transform: translateY(6px);
+  opacity: 0;
+  animation: actionPop 700ms ease forwards;
+}
+.actions .button-like:nth-child(1) {
+  animation-delay: 1.2s;
+}
+.actions .button-like:nth-child(2) {
+  animation-delay: 1.35s;
+}
+.actions .button-like:nth-child(3) {
+  animation-delay: 1.5s;
+}
+
+@keyframes actionPop {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 .actions button {
   font-size: 1.05rem;
@@ -227,7 +423,7 @@
   align-items: start;
 }
 
-.svsLinkers{
+.svsLinkers {
   text-decoration: none;
 }
 
@@ -368,6 +564,10 @@
   .svsItem {
     height: auto;
   }
+  /* tighter header padding for small screens */
+  .home {
+    padding-top: 64px;
+  }
 }
 
 /* Large screens: increase min column size so cards can use more horizontal space */
@@ -441,7 +641,7 @@ html.light .buildBtn {
   color: #fff;
 }
 html.light .button-like {
-  color: #0b1220;
-  background: transparent;
+  color: white;
+  background: var(--glass);
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
