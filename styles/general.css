@@ -351,6 +351,250 @@ textarea::placeholder {
   }
 }
 
+/* ------------------------------------------------------------------
+   Service links & shared card styles (shared between home & build)
+   Ensure build.html services visually match the homepage and links
+   don't show an underline while remaining accessible.
+   ------------------------------------------------------------------ */
+
+/* wrapper used by JS when rendering services */
+.service-link-wrap,
+.svsLinkers {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.service-link-wrap:focus-visible,
+.service-link-wrap:focus {
+  outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+.service-link-wrap:hover,
+.service-link-wrap:focus {
+  text-decoration: none;
+}
+
+/* Shared grid/container for service cards (applies to build page too) */
+.svsItemContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.svsItem {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+/* card visuals reused from home.css so build page matches */
+.svsItem .card,
+.card {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.12));
+  overflow: hidden;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+.card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+.card .card-body {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card .card-body h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #fff;
+}
+.card .muted {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* subtle hover lift for service cards */
+.svsItem:hover .card,
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ------------------------------------------------------------------
+   Footer (glassy, blurred and distinct from other sections)
+   ------------------------------------------------------------------ */
+.site-footer {
+  margin-top: 18px;
+  padding: 28px 0;
+  background: var(--glass);
+}
+.site-footer::before {
+  /* full-bleed glassy background strip */
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 160px;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 -6px 30px rgba(2, 6, 23, 0.6);
+}
+.site-footer .footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  position: relative;
+}
+.site-footer .footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.site-footer .footer-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+.site-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.site-footer .brandName {
+  font-weight: 800;
+  color: var(--accent) !important;
+  text-decoration: none;
+}
+
+/* Light mode footer tweak */
+html.light .site-footer {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.92),
+    rgba(255, 255, 255, 0.86)
+  );
+  border-top: 1px solid rgba(10, 10, 10, 0.06);
+  color: #0b1220;
+}
+html.light .site-footer a {
+  color: #0b1220;
+}
+
+/* Responsive footer: stack on small screens */
+@media (max-width: 700px) {
+  .site-footer .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .site-footer .footer-right {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Small screens: ensure service grid compresses nicely */
+@media (max-width: 640px) {
+  .svsItemContainer {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .card img {
+    height: 120px;
+  }
+}
+
+/* footer: rounded and span bottom edge inside the layout */
+.site-footer {
+  border-radius: 12px 12px 0 0;
+  margin: 28px 0 0 0;
+}
+
+.footer-contact {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+  text-decoration: none;
+  color: var(--muted);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.footer-contact:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  color: white;
+}
+
+.whatsapp-link img {
+  filter: none; /* ensure original SVG color shows if provided */
+}
+.whatsapp-link {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 211, 102, 0.12),
+    rgba(37, 211, 102, 0.06)
+  );
+  color: #00a884;
+  border: 1px solid rgba(0, 168, 132, 0.08);
+}
+.whatsapp-link:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(37, 211, 102, 0.18),
+    rgba(37, 211, 102, 0.12)
+  );
+  color: white;
+}
+
+.email-link img,
+.whatsapp-link img {
+  width: 18px;
+  height: 18px;
+}
+
+/* build page: make choose buttons higher contrast (similar to consult buttons) */
+.choose-service {
+  background: linear-gradient(90deg, #2b6be6, #2563eb);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.choose-service:hover {
+  transform: translateY(-3px);
+}
+
+/* make 'Our Services' titles more visible in light mode */
+html.light #services h1,
+html.light .services h1 {
+  color: #0b1220;
+  text-shadow: none;
+}
+
 /* Mobile adjustments for admin and general small screens */
 @media (max-width: 600px) {
   /* Make admin rows stack vertically and buttons full width */
@@ -416,4 +660,37 @@ textarea::placeholder {
     width: 48px;
     height: 48px;
   }
+}
+
+/* Force footer to keep a visible glassy background in both themes
+   by using a full-bleed ::before layer positioned behind the footer.
+*/
+.site-footer {
+  position: relative !important;
+  z-index: 1;
+}
+.site-footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.22));
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 -6px 30px rgba(2, 6, 23, 0.6);
+}
+
+/* Light mode override: lighter glass so text is readable */
+html.light .site-footer::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.94),
+    rgba(255, 255, 255, 0.9)
+  );
+  border-top: 1px solid rgba(10, 10, 10, 0.06);
+  box-shadow: 0 -4px 18px rgba(10, 10, 10, 0.06);
 }

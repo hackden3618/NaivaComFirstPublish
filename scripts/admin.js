@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (gate) gate.style.display = "flex";
   }
 
+  // unlock if already authed
   if (isAuthed()) unlock();
 
   if (pwForm) {
@@ -137,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let editEnabled = sessionStorage.getItem("naivacom-edit-enabled") === "1";
 
   function setEditMode(on) {
+    lock();
     editEnabled = !!on;
     sessionStorage.setItem("naivacom-edit-enabled", editEnabled ? "1" : "0");
     // enable/disable forms
@@ -151,6 +153,86 @@ document.addEventListener("DOMContentLoaded", () => {
       editStatus.textContent = editEnabled
         ? "Editing enabled"
         : "Editing disabled";
+  }
+
+  /* -----------------------
+     Generic modal & toast helpers
+     ----------------------- */
+  const genericModal = document.getElementById("admin-generic-modal");
+  const modalTitle = genericModal && genericModal.querySelector("#modal-title");
+  const modalBody = genericModal && genericModal.querySelector("#modal-body");
+  const modalCancel =
+    genericModal && genericModal.querySelector("#modal-cancel");
+  const modalConfirm =
+    genericModal && genericModal.querySelector("#modal-confirm");
+  const toasts = document.getElementById("admin-toasts");
+
+  function showToast(message, type = "info", timeout = 2800) {
+    if (!toasts) return;
+    const node = document.createElement("div");
+    node.className = "undo-toast";
+    node.textContent = message;
+    toasts.appendChild(node);
+    setTimeout(() => node.remove(), timeout);
+  }
+
+  function showConfirm(title, html) {
+    return new Promise((resolve) => {
+      if (!genericModal) return resolve(false);
+      modalTitle.textContent = title || "Confirm";
+      modalBody.innerHTML = `<p>${html || ""}</p>`;
+      genericModal.style.display = "flex";
+      modalConfirm.textContent = "Confirm";
+      modalCancel.textContent = "Cancel";
+      function cleanup() {
+        modalConfirm.removeEventListener("click", onConfirm);
+        modalCancel.removeEventListener("click", onCancel);
+        genericModal.style.display = "none";
+      }
+      function onConfirm() {
+        cleanup();
+        resolve(true);
+      }
+      function onCancel() {
+        cleanup();
+        resolve(false);
+      }
+      modalConfirm.addEventListener("click", onConfirm);
+      modalCancel.addEventListener("click", onCancel);
+    });
+  }
+
+  function showPrompt(title, label, defaultValue = "") {
+    return new Promise((resolve) => {
+      if (!genericModal) return resolve(null);
+      modalTitle.textContent = title || "Input";
+      modalBody.innerHTML = `<label style="display:block;margin-bottom:8px;">${
+        label || ""
+      }</label><input id="_modal_input" value="${String(
+        defaultValue || ""
+      )}" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.08);" />`;
+      genericModal.style.display = "flex";
+      modalConfirm.textContent = "OK";
+      modalCancel.textContent = "Cancel";
+      const input = genericModal.querySelector("#_modal_input");
+      input.focus();
+      function cleanup() {
+        modalConfirm.removeEventListener("click", onOk);
+        modalCancel.removeEventListener("click", onCancel);
+        genericModal.style.display = "none";
+      }
+      function onOk() {
+        const val = input.value;
+        cleanup();
+        resolve(val);
+      }
+      function onCancel() {
+        cleanup();
+        resolve(null);
+      }
+      modalConfirm.addEventListener("click", onOk);
+      modalCancel.addEventListener("click", onCancel);
+    });
   }
 
   // render lists for admin area (services, testimonials, projects, team)
@@ -287,14 +369,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Note: authentication modal and client-side gating removed — edits execute immediately when editing enabled
+  // Note: authentication modal and client-side gating removed ~ edits execute immediately when editing enabled
 
   // wire team form submit
   if (teamForm) {
-    teamForm.addEventListener("submit", (e) => {
+    teamForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!editEnabled) return alert("Enable editing to add content");
-      if (!confirm("Confirm adding this team member?")) return;
+      if (!editEnabled)
+        return showToast("Enable editing to add content", "info");
+      const ok = await showConfirm(
+        "Add team member",
+        "Confirm adding this team member?"
+      );
+      if (!ok) return;
       const fd = new FormData(teamForm);
       const item = {
         id: Date.now(),
@@ -307,11 +394,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof App !== "undefined" && App.addTeam) App.addTeam(item);
       teamForm.reset();
       renderLists();
+      showToast("Team member added");
     });
   }
 
   // general delegated clicks for edit/delete/view actions
-  document.body.addEventListener("click", (e) => {
+  document.body.addEventListener("click", async (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
     const action = btn.getAttribute("data-action");
@@ -321,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btn.classList.contains("viewBtn")) return;
     if (!action || !type || !id) return;
     if (!editEnabled && action !== "view")
-      return alert("Enable editing to perform this action");
+      return showToast("Enable editing to perform this action", "info");
 
     if (action === "rank") {
       if (
@@ -333,10 +421,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const list = App.getTeams();
         const idx = list.findIndex((t) => t.id === id);
         if (idx === -1) return alert("Team member not found");
-        const input = prompt("Set rank position (1 = top):", String(idx + 1));
+        const input = await showPrompt(
+          "Set rank",
+          "Set rank position (1 = top):",
+          String(idx + 1)
+        );
         if (!input) return;
         const n = Number(input);
-        if (isNaN(n) || n < 1) return alert("Invalid rank");
+        if (isNaN(n) || n < 1) return showToast("Invalid rank", "error");
         const newIndex = Math.max(0, Math.min(n - 1, list.length - 1));
         App.moveTeam(id, newIndex);
         renderLists();
@@ -345,29 +437,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (action === "delete") {
-      if (!confirm("Delete this item? This cannot be undone.")) return;
+      lock();
+      const okDel = await showConfirm(
+        "Delete item",
+        "Delete this item? This cannot be undone."
+      );
+      if (!okDel) return;
       if (type === "team" && App.deleteTeam) App.deleteTeam(id);
       if (type === "service" && App.deleteService) App.deleteService(id);
       if (type === "testimonial" && App.deleteTestimonial)
         App.deleteTestimonial(id);
       if (type === "project" && App.deleteProject) App.deleteProject(id);
       renderLists();
+      showToast("Item deleted");
       return;
     }
 
     if (action === "edit") {
+      lock();
       // simple prompt-based edit to keep UI small; require auth before edits
       if (type === "team" && App.getTeams && App.updateTeam) {
         const current = App.getTeams().find((t) => t.id === id);
         if (!current) return alert("Team member not found");
-        const name = prompt("Name:", current.name) || current.name;
-        const role = prompt("Role:", current.role || "") || current.role;
+        const name =
+          (await showPrompt("Edit name", "Name:", current.name)) ||
+          current.name;
+        const role =
+          (await showPrompt("Edit role", "Role:", current.role || "")) ||
+          current.role;
         const avatar =
-          prompt("Avatar URL:", current.avatar || "") || current.avatar;
+          (await showPrompt(
+            "Edit avatar",
+            "Avatar URL:",
+            current.avatar || ""
+          )) || current.avatar;
         const portfolio =
-          prompt("Portfolio URL:", current.portfolio || "") ||
-          current.portfolio;
-        const bio = prompt("Short bio:", current.bio || "") || current.bio;
+          (await showPrompt(
+            "Edit portfolio",
+            "Portfolio URL:",
+            current.portfolio || ""
+          )) || current.portfolio;
+        const bio =
+          (await showPrompt("Edit bio", "Short bio:", current.bio || "")) ||
+          current.bio;
         const updated = Object.assign({}, current, {
           name,
           role,
@@ -380,13 +492,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (type === "service" && App.getServices && App.updateService) {
         const current = App.getServices().find((s) => s.id === id);
-        if (!current) return alert("Service not found");
-        const title = prompt("Service title:", current.title) || current.title;
+        if (!current) return showToast("Service not found", "error");
+        const title =
+          (await showPrompt("Edit service title", "Title:", current.title)) ||
+          current.title;
         const description =
-          prompt("Description:", current.description || "") ||
-          current.description;
+          (await showPrompt(
+            "Edit description",
+            "Description:",
+            current.description || ""
+          )) || current.description;
         const image =
-          prompt("Image URL:", current.image || "") || current.image;
+          (await showPrompt(
+            "Edit image URL",
+            "Image URL:",
+            current.image || ""
+          )) || current.image;
         const updated = Object.assign({}, current, {
           title,
           description,
@@ -401,16 +522,32 @@ document.addEventListener("DOMContentLoaded", () => {
         App.updateTestimonial
       ) {
         const current = App.getTestimonials().find((t) => t.id === id);
-        if (!current) return alert("Testimonial not found");
-        const name = prompt("Name:", current.name) || current.name;
-        const role = prompt("Role:", current.role || "") || current.role;
+        if (!current) return showToast("Testimonial not found", "error");
+        const name =
+          (await showPrompt("Edit name", "Name:", current.name)) ||
+          current.name;
+        const role =
+          (await showPrompt("Edit role", "Role:", current.role || "")) ||
+          current.role;
         const avatar =
-          prompt("Avatar URL:", current.avatar || "") || current.avatar;
+          (await showPrompt(
+            "Edit avatar",
+            "Avatar URL:",
+            current.avatar || ""
+          )) || current.avatar;
         const rating = Number(
-          prompt("Rating (0-100):", current.rating || 80) || current.rating
+          (await showPrompt(
+            "Edit rating",
+            "Rating 0-100:",
+            current.rating || 80
+          )) || current.rating
         );
         const comment =
-          prompt("Comment:", current.comment || "") || current.comment;
+          (await showPrompt(
+            "Edit comment",
+            "Comment:",
+            current.comment || ""
+          )) || current.comment;
         const updated = Object.assign({}, current, {
           name,
           role,
@@ -423,15 +560,28 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (type === "project" && App.getProjects && App.updateProject) {
         const current = App.getProjects().find((p) => p.id === id);
-        if (!current) return alert("Project not found");
-        const title = prompt("Project title:", current.title) || current.title;
+        if (!current) return showToast("Project not found", "error");
+        const title =
+          (await showPrompt("Edit project title", "Title:", current.title)) ||
+          current.title;
         const description =
-          prompt("Description:", current.description || "") ||
-          current.description;
+          (await showPrompt(
+            "Edit description",
+            "Description:",
+            current.description || ""
+          )) || current.description;
         const image =
-          prompt("Image URL:", current.image || "") || current.image;
+          (await showPrompt(
+            "Edit image URL",
+            "Image URL:",
+            current.image || ""
+          )) || current.image;
         const link =
-          prompt("Project link:", current.link || "") || current.link;
+          (await showPrompt(
+            "Edit link",
+            "Project link:",
+            current.link || ""
+          )) || current.link;
         const updated = Object.assign({}, current, {
           title,
           description,
@@ -460,7 +610,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </div>`;
   document.body.appendChild(modal);
-  // Authentication modal removed — edits execute immediately when editing is enabled
+  // Authentication modal removed ~ edits execute immediately when editing is enabled
   const viewModal = document.getElementById("admin-view-modal");
   const viewPreview = viewModal.querySelector("img.preview");
   const viewTitle = viewModal.querySelector(".title");
@@ -659,10 +809,67 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (
         confirm(
-          "Enable editing — this will allow adding and deleting site content. Continue?"
+          "Enable editing ~ this will allow adding and deleting site content. Continue?"
         )
       ) {
         setEditMode(true);
+      }
+    });
+  }
+
+  // Remote config: save endpoint and post to server
+  const remoteEndpointInput = document.getElementById("remote-endpoint");
+  const remoteKeyInput = document.getElementById("remote-key");
+  const saveRemoteBtn = document.getElementById("save-remote");
+  const postRemoteBtn = document.getElementById("post-remote");
+
+  // load saved remote config from localStorage if present
+  try {
+    const savedEndpoint = localStorage.getItem("naivacom-remote-endpoint");
+    const savedKey = localStorage.getItem("naivacom-remote-key");
+    if (savedEndpoint && remoteEndpointInput)
+      remoteEndpointInput.value = savedEndpoint;
+    if (savedKey && remoteKeyInput) remoteKeyInput.value = savedKey;
+  } catch (e) {}
+
+  if (saveRemoteBtn) {
+    saveRemoteBtn.addEventListener("click", () => {
+      const url = remoteEndpointInput && remoteEndpointInput.value;
+      const key = remoteKeyInput && remoteKeyInput.value;
+      if (!url) return alert("Provide a remote endpoint URL first");
+      try {
+        localStorage.setItem("naivacom-remote-endpoint", url);
+        localStorage.setItem("naivacom-remote-key", key || "");
+      } catch (e) {}
+      if (typeof App !== "undefined" && App.setRemoteEndpoint) {
+        App.setRemoteEndpoint(url, key || null);
+        alert(
+          "Remote endpoint saved locally. Use 'Post to server' to push current data."
+        );
+      }
+    });
+  }
+
+  if (postRemoteBtn) {
+    postRemoteBtn.addEventListener("click", async () => {
+      // require admin gate/password
+      if (!isAuthed())
+        return alert("Enter admin password to post changes to server");
+      const url = remoteEndpointInput && remoteEndpointInput.value;
+      const key = remoteKeyInput && remoteKeyInput.value;
+      if (!url) return alert("Set a remote endpoint first and save it");
+      if (!confirm("Post current content to the remote server now?")) return;
+      // configure App and push
+      if (typeof App !== "undefined" && App.setRemoteEndpoint && App.syncNow) {
+        App.setRemoteEndpoint(url, key || null);
+        try {
+          await App.syncNow();
+          alert("Posted site data to remote server.");
+        } catch (e) {
+          alert("Failed to post to server: " + (e && e.message));
+        }
+      } else {
+        alert("Remote sync not available in this build.");
       }
     });
   }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Start a Project — NaivaCom</title>
+    <title>Start a Project ~ NaivaCom</title>
     <link rel="icon" href="../images/icons/NaivaComLogo-removebg.png" />
     <link rel="stylesheet" href="styles/header.css" />
     <link rel="stylesheet" href="styles/build.css" />
@@ -93,13 +93,7 @@
           <div class="field">
             <label for="service">What are you looking for?</label>
             <select id="service" name="service">
-              <option>Website / Webapp</option>
-              <option>Mobile App</option>
-              <option>UI / UX Design</option>
-              <option>Software development</option>
-              <option>System architecture</option>
-              <option>DevOps & Hosting</option>
-              <option>Other</option>
+              <!-- options will be populated by scripts/build.js based on available services -->
             </select>
           </div>
           <div class="field">
@@ -121,6 +115,11 @@
           <p id="feedback" role="status" aria-live="polite"></p>
         </form>
       </section>
+
+        <section class="services-preview">
+          <h3>Our Services</h3>
+          <div id="build-services-list" class="svsItemContainer"></div>
+        </section>
 
       <aside class="help">
         <h3>Prefer email or WhatsApp?</h3>

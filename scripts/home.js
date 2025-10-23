@@ -42,7 +42,6 @@ const App = (() => {
   // store team members in an object array named `teamMembers`
   const teamMembers = [];
   const projectsModel = [];
-  console.log(teamMembers)
 
   // Views
   function renderServices(containerId = "services-list") {
@@ -55,7 +54,8 @@ const App = (() => {
       cardWrap.style.animationDelay = i * 60 + "ms";
       const card = document.createElement("article");
       card.className = "card";
-      card.innerHTML = ` <a class="svsLinkers" href="build.html">${
+      card.innerHTML = `
+        ${
           s.image
             ? `<img src="${s.image}" alt="${escapeHtml(
                 s.title
@@ -65,10 +65,14 @@ const App = (() => {
         <div class="card-body">
           <h3>${escapeHtml(s.title)}</h3>
           <p class="muted">${escapeHtml(s.description)}</p>
-        </div></a>
-        `;
+        </div>`;
       cardWrap.appendChild(card);
-      container.appendChild(cardWrap);
+      // wrap with a link to build page so clicking a service opens the build form
+      const link = document.createElement("a");
+      link.href = `build.html?serviceId=${encodeURIComponent(s.id)}`;
+      link.className = "service-link-wrap";
+      link.appendChild(cardWrap);
+      container.appendChild(link);
     });
   }
 
@@ -292,6 +296,54 @@ const App = (() => {
     }
   }
 
+  // Optional remote sync adapter (clients can call App.setRemoteEndpoint(url, key))
+  // When configured, save() will attempt to push the full data to the endpoint
+  // and App.init() will try to fetch remote data to seed the app.
+  let remoteEndpoint = null; // e.g. https://api.example.com/naivacom
+  let remoteSecretKey = null; // optional auth key/header identifier
+
+  async function remoteSave() {
+    if (!remoteEndpoint) return;
+    try {
+      const payload = {
+        services: servicesOffered.slice(),
+        testimonials: testimonialsModel.slice(),
+        projects: projectsModel.slice(),
+        team: teamMembers.slice(),
+      };
+      const headers = { "Content-Type": "application/json" };
+      if (remoteSecretKey) headers["X-NaivaCom-Key"] = remoteSecretKey;
+      await fetch(remoteEndpoint, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      });
+    } catch (e) {
+      // don't throw - network may not be available; log for debugging
+      console.warn("Remote save failed", e);
+    }
+  }
+
+  async function remoteFetch() {
+    if (!remoteEndpoint) return null;
+    try {
+      const headers = {};
+      if (remoteSecretKey) headers["X-NaivaCom-Key"] = remoteSecretKey;
+      const res = await fetch(remoteEndpoint, {
+        method: "GET",
+        headers,
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error("Remote fetch failed: " + res.status);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      console.warn("Remote fetch failed", e);
+      return null;
+    }
+  }
+
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem("naivacom-services") || "null");
@@ -321,6 +373,37 @@ const App = (() => {
     }
   }
 
+  // Try to fetch remote data and merge into local models if remote endpoint is configured.
+  // Merge strategy: if remote arrays present and non-empty, prefer remote values.
+  async function tryLoadRemoteAndMerge() {
+    const remote = await remoteFetch();
+    if (!remote) return;
+    try {
+      if (Array.isArray(remote.services) && remote.services.length) {
+        servicesOffered.length = 0;
+        servicesOffered.push(...remote.services);
+        save();
+      }
+      if (Array.isArray(remote.testimonials) && remote.testimonials.length) {
+        testimonialsModel.length = 0;
+        testimonialsModel.push(...remote.testimonials);
+        save();
+      }
+      if (Array.isArray(remote.projects) && remote.projects.length) {
+        projectsModel.length = 0;
+        projectsModel.push(...remote.projects);
+        save();
+      }
+      if (Array.isArray(remote.team) && remote.team.length) {
+        teamMembers.length = 0;
+        teamMembers.push(...remote.team);
+        save();
+      }
+    } catch (e) {
+      console.warn("Failed to merge remote data", e);
+    }
+  }
+
   // Utilities
   function escapeHtml(str) {
     if (!str) return "";
@@ -343,55 +426,39 @@ const App = (() => {
       id: 1,
       title: "Custom Web Development",
       description:
-        "We build responsive and scalable web apps built to your spec.",
+        "Responsive, accessible, and scalable web apps built to your spec.",
       image: "images/webDevcard.webp",
     },
     {
       id: 2,
       title: "UI / UX Design",
       description:
-        "We design systems and interfaces that convert your users into customers.",
-      image: "images/UIuxDesignIcon.webp",
+        "Design systems and interfaces that convert users into customers.",
+      image: "images/webDevcard.webp",
     },
     {
       id: 3,
       title: "E-commerce Solutions",
       description:
-        "We help you secure online stores with payment integrations and analytics.",
-      image: " images/eCommerceImageIcon.webp ",
+        "Secure online stores with payment integrations and analytics.",
+      image: "images/webDevcard.webp",
     },
     {
       id: 4,
       title: "Performance & SEO",
       description:
-        "We implement optimization and search improvements that drive traffic.",
-      image: "images/googleImageIconSEO.webp",
-    },
-    {
-      id: 5,
-      title: "Payments Integration",
-      description:
-        "We can set up your business to receive payments seamlessly online keeping up with modern markets.",
-      image: "images/mpesaLogo.webp",
-    },
-    {
-      id: 6,
-      title: "System Analysis, Design & Development",
-      description:
-        "We design systems you wish to integrate or even run your business by our professionals.",
-      image: "images/system_design2.webp",
+        "Speed, optimization, and search improvements that drive traffic.",
+      image: "images/webDevcard.webp",
     },
   ];
 
   const sampleTestimonials = [
     {
       id: 1,
-      name: "David Maina",
-      role: "Founder & CEO, NaivaCom",
+      name: "Aisha Mwangi",
+      role: "Founder, Acme Foods",
       comment:
-        "I started NaivaCom web development as a small start-up several years ago to help grow small local businesses, I never could have predicted to be serving large companies as soon as 2024.",
-      avatar: "images/mainaPilotImg.webp",
-      rating: 100,
+        "NaivaCom delivered a modern store that increased online orders by 83%, communication and delivery were excellent.",
     },
     {
       id: 2,
@@ -399,44 +466,13 @@ const App = (() => {
       role: "CTO, Atlas Logistics",
       comment:
         "Their team rebuilt our dashboard with clear UX improvements and measurable performance gains.",
-      avatar: "images/icons/default-avatar.png",
-      rating: 87,
     },
     {
       id: 3,
       name: "Marta Kimani",
       role: "Marketing Lead, BrightMedia",
       comment:
-        "Professional and strategic, our conversion rate improved after the redesign of our website.Loved their dedication to understanding our needs.",
-      avatar: "images/icons/default-avatar.png",
-      rating: 96,
-    },
-    {
-      id: 4,
-      name: "Silvia Njeri",
-      role: "Software Engineer, AWS",
-      comment:
-        "I only work with genuine companies and NaivaCom has always proven me wrong about local development. PS, I'm still looking for any errors to point out but so far, none!",
-      avatar: "images/silviaDepiction.webp",
-      rating: 83,
-    },
-    {
-      id: 4,
-      name: "Dennis Wambugu",
-      role: "Computer Scientist, Google",
-      comment:
-        "Geez, I have worked with so many developers, NaivaCom has this customer first directive where they actually listen to what you need and deliver more than expected. Kudos to the team!",
-      avatar: "images/cropImgMe.jpg",
-      rating: 98,
-    },
-    {
-      id: 4,
-      name: "Thomas Mulwa",
-      role: "Computer Scientist, Maseno University",
-      comment:
-        "I got recommended to NaivaCom by a friend and I must say, the experience has been top-notch. Nobody judge me when I can be working with this company while I have my website working for me 24/7. Thank you NaivaCom!",
-      avatar: "images/thomasCat.webp",
-      rating: 95,
+        "Professional, timely and strategic, our conversion rate improved after the redesign.",
     },
   ];
   const sampleProjects = [
@@ -445,53 +481,63 @@ const App = (() => {
       title: "NaivaCom Portfolio Site",
       description:
         "A responsive marketing site built with performance in mind.",
-      image: "images/NaivaComLogo.jpeg",
+      image: "images/webDevcard.webp",
       link: "#",
     },
     {
       id: 2,
-      title: "Le Concierge E-commerce",
-      description: "A secure luxury service provider with payment integration.",
-      image: "images/laconciergeWebsiteimage.webp",
-      link: "https://la-concierge-website.onrender.com/",
+      title: "E-commerce Demo",
+      description: "A secure demo storefront with payment integration.",
+      image: "images/webDevcard.webp",
+      link: "#",
     },
   ];
 
   const sampleTeam = [
     {
       id: 1,
-      name: "David Maina",
+      name: "Aisha Mwangi",
       role: "Founder & CEO",
-      avatar: "images/mainaPilotImg.webp",
+      avatar: "images/icons/default-avatar.svg",
       portfolio: "#",
     },
     {
       id: 2,
-      name: "Dennis Wambugu",
-      role: "Co-Founder & CTO",
-      avatar: "images/cropImgMe.jpg",
+      name: "John Otieno",
+      role: "Chief Technology Officer",
+      avatar: "images/icons/default-avatar.svg",
       portfolio: "#",
     },
     {
       id: 3,
-      name: "Silvia Njeri",
-      role: "Software Engineer",
-      avatar: "images/silviaDepiction.webp",
-      portfolio: "#",
-    },
-    {
-      id: 4,
-      name: "Thomas Mulwa",
-      role: "Computer Scientist",
-      avatar: "images/thomasCat.webp",
+      name: "Marta Kimani",
+      role: "Lead Product Designer",
+      avatar: "images/icons/default-avatar.svg",
       portfolio: "#",
     },
   ];
 
   // public API
   return {
-    init() {
+    async init() {
       load();
+
+      // if a remote endpoint/key was saved by the admin UI, restore it so visitors can auto-load
+      try {
+        const savedEndpoint = localStorage.getItem("naivacom-remote-endpoint");
+        const savedKey = localStorage.getItem("naivacom-remote-key");
+        if (savedEndpoint) {
+          // configure internal remote adapter
+          remoteEndpoint = savedEndpoint;
+          remoteSecretKey = savedKey || null;
+          // attempt to fetch and merge remote data; if it fails continue with local
+          await tryLoadRemoteAndMerge();
+        }
+      } catch (e) {
+        // swallow errors - don't break page load
+        console.warn("Failed to restore remote config", e);
+      }
+
       // if no saved data, seed with samples
       if (!servicesOffered.length) setServices(sampleServices);
       else renderServices();
@@ -551,6 +597,15 @@ const App = (() => {
     updateProject,
     updateTestimonial,
     setTeam,
+    // Remote sync API (optional): configure a server endpoint to centralize changes
+    setRemoteEndpoint(url, secretKey) {
+      remoteEndpoint = url || null;
+      remoteSecretKey = secretKey || null;
+    },
+    // Trigger a one-off sync to push local state to remote endpoint
+    async syncNow() {
+      await remoteSave();
+    },
   };
 })();
 

@@ -16,7 +16,44 @@
       <h1>Welcome Admin ~ Content Manager</h1>
       <div id="edit-controls">
         <button id="toggle-edit">Enable Editing</button>
-        <span id="edit-status">Editing is disabled  view-only</span>
+        <span id="edit-status">Editing is disabled view-only</span>
+        <!-- Remote sync configuration -->
+        <div
+          id="remote-config"
+          style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: 12px;
+          "
+        >
+          <input
+            id="remote-endpoint"
+            placeholder="Remote endpoint (https://...)"
+            style="min-width: 260px"
+          />
+          <input
+            id="remote-key"
+            placeholder="Secret key (optional)"
+            style="width: 160px"
+          />
+          <button id="save-remote" type="button">Save</button>
+          <button id="post-remote" type="button">Post to server</button>
+        
+        <!-- Processes / terminal viewer -->
+        <button id="toggle-processes" type="button" aria-expanded="false">Show processes</button>
+        </div>
+      </div>
+
+      <div id="processes-panel" style="display:none;margin-top:12px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="clear-process-log" type="button">Clear</button>
+          <button id="pause-process-log" type="button">Pause</button>
+          <div style="margin-left:auto;color:var(--muted);font-size:0.9rem;">Terminal view (sync & posting activity)</div>
+        </div>
+        <pre id="process-log" class="process-log" aria-live="polite"></pre>
+      </div>
+        </div>
       </div>
       <section id="admin-services">
         <h2>Services</h2>
@@ -90,5 +127,19 @@
     </div>
 
     <!-- admin behaviour moved to scripts/admin.js -->
+    <!-- Generic modal used by admin scripts for prompts and confirmations -->
+    <div id="admin-generic-modal" style="display: none" aria-hidden="true">
+      <div class="modal-overlay"></div>
+      <div class="modal-dialog">
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+        <div class="modal-actions">
+          <button id="modal-cancel">Cancel</button>
+          <button id="modal-confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="admin-toasts" aria-live="polite"></div>
   </body>
 </html>
