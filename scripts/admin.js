@@ -802,6 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (clearBtn) {
     clearBtn.addEventListener("click", () => {
+      lock();
       if (confirm("Clear stored data?")) {
         localStorage.removeItem("naivacom-services");
         localStorage.removeItem("naivacom-testimonials");
@@ -907,6 +908,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (postRemoteBtn) {
     postRemoteBtn.addEventListener("click", async () => {
+      lock();
       // require admin gate/password
       if (!isAuthed())
         return alert("Enter admin password to post changes to server");
@@ -918,10 +920,36 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof App !== "undefined" && App.setRemoteEndpoint && App.syncNow) {
         App.setRemoteEndpoint(url, key || null);
         try {
-          await App.syncNow();
-          alert("Posted site data to remote server.");
+          // show pending status
+          const statusEl = document.getElementById("post-status");
+          if (statusEl) {
+            statusEl.textContent = "Posting...";
+            statusEl.className = "";
+          }
+          const ok = await App.syncNow();
+          if (ok) {
+            if (statusEl) {
+              statusEl.textContent = "Post successful";
+              statusEl.className = "post-success";
+            }
+            appendProcessLine("post-remote -> success");
+            showToast("Posted site data to remote server.");
+          } else {
+            if (statusEl) {
+              statusEl.textContent = "Post failed";
+              statusEl.className = "post-fail";
+            }
+            appendProcessLine("post-remote -> failed");
+            showToast("Failed to post to server", "error");
+          }
         } catch (e) {
-          alert("Failed to post to server: " + (e && e.message));
+          const statusEl = document.getElementById("post-status");
+          if (statusEl) {
+            statusEl.textContent = "Post failed";
+            statusEl.className = "post-fail";
+          }
+          appendProcessLine("post-remote -> exception " + (e && e.message));
+          showToast("Failed to post to server: " + (e && e.message), "error");
         }
       } else {
         alert("Remote sync not available in this build.");

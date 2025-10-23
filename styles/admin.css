@@ -240,6 +240,22 @@ html.light #pw-form {
   margin-top: 8px;
 }
 
+#post-status {
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.post-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+}
+.post-fail {
+  background: rgba(239, 68, 68, 0.09);
+  color: #7f1d1d;
+  border: 1px solid rgba(239, 68, 68, 0.14);
+}
+
 /* Generic modal styles */
 #admin-generic-modal {
   position: fixed;
@@ -312,6 +328,104 @@ html.light #pw-form {
     margin: 18px;
     padding: 12px;
   }
+}
+
+/* Larger small screens: improve layout and wrap controls */
+@media (max-width: 900px) {
+  #edit-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #toggle-edit {
+    flex: 0 1 auto;
+  }
+  #remote-config {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #remote-config input {
+    flex: 1 1 auto;
+    min-width: 140px;
+  }
+  #post-remote {
+    flex: 0 0 auto;
+  }
+  /* make forms inputs stretch to available width */
+  form input,
+  form textarea,
+  form select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  /* reduce modal dialog side-by-side layout on medium screens */
+  #admin-view-modal .dialog {
+    grid-template-columns: 1fr 1.2fr;
+  }
+}
+
+/* Very small screens: stack everything clearly */
+@media (max-width: 480px) {
+  main {
+    margin: 12px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .list .row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+  .row .meta {
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .thumb {
+    width: 48px;
+    height: 34px;
+  }
+  .row button {
+    width: 100%;
+    padding: 10px;
+  }
+  /* make process panel full width and taller on small screens */
+  #processes-panel {
+    width: 100%;
+  }
+  .process-log {
+    height: 180px;
+    font-size: 12px;
+  }
+  #admin-view-modal .dialog {
+    grid-template-columns: 1fr;
+  }
+  #admin-view-modal .dialog .meta {
+    font-size: 0.95rem;
+  }
+  #admin-generic-modal .modal-dialog {
+    width: 96%;
+  }
+  #remote-config {
+    flex-direction: column;
+    gap: 8px;
+  }
+  #remote-config input,
+  #remote-config button {
+    width: 100% !important;
+  }
+  #toggle-processes {
+    width: 100%;
+  }
+}
+
+/* Small accessibility tweak: ensure focus-visible outlines remain visible on small devices */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 3px solid rgba(59, 130, 246, 0.16);
+  outline-offset: 2px;
 }
 
 #edit-status {

@@ -331,12 +331,24 @@ const App = (() => {
       };
       const headers = { "Content-Type": "application/json" };
       if (remoteSecretKey) headers["X-NaivaCom-Key"] = remoteSecretKey;
-      await fetch(remoteEndpoint, {
+      const res = await fetch(remoteEndpoint, {
         method: "PUT",
         headers,
         body: JSON.stringify(payload),
         cache: "no-store",
       });
+      if (!res || !res.ok) {
+        try {
+          window.dispatchEvent(
+            new CustomEvent("naivacom:process", {
+              detail: {
+                message: `remoteSave -> failed status ${res && res.status}`,
+              },
+            })
+          );
+        } catch (e) {}
+        return false;
+      }
       try {
         window.dispatchEvent(
           new CustomEvent("naivacom:process", {
@@ -344,6 +356,7 @@ const App = (() => {
           })
         );
       } catch (e) {}
+      return true;
     } catch (e) {
       // don't throw - network may not be available; log for debugging
       console.warn("Remote save failed", e);
@@ -354,6 +367,7 @@ const App = (() => {
           })
         );
       } catch (er) {}
+      return false;
     }
   }
 
@@ -717,7 +731,12 @@ const App = (() => {
     },
     // Trigger a one-off sync to push local state to remote endpoint
     async syncNow() {
-      await remoteSave();
+      try {
+        const ok = await remoteSave();
+        return !!ok;
+      } catch (e) {
+        return false;
+      }
     },
   };
 })();
