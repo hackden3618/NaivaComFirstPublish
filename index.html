@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NaivaCom Home</title>
+    <title>NaivaCom Best Web developers</title>
     <link rel="icon" href="../images/icons/NaivaComLogo-removebg.png" />
     <!-- SEO: description, keywords, OG and Twitter cards -->
     <meta
@@ -50,6 +50,42 @@
     <script defer src="scripts/index.js"></script>
   </head>
   <body>
+    <!-- Welcome curtain: covers the viewport while the site finishes loading -->
+    <div
+      id="welcome-curtain"
+      class="welcome-curtain"
+      role="status"
+      aria-live="polite"
+      aria-hidden="false"
+    >
+      <div class="curtain-inner">
+        <div class="curtain-brand">
+          <img
+            src="images/NaivaComLogo.jpeg"
+            alt="NaivaCom logo"
+            width="84"
+            height="84"
+            loading="eager"
+          />
+        </div>
+        <div class="curtain-copy">
+          <h2>Welcome, we are preparing a fast, secure experience</h2>
+          <p class="curtain-sub">Catering to your tech needs...</p>
+        </div>
+        <div class="curtain-spinner" aria-hidden="true">
+          <svg viewBox="0 0 50 50" class="spinner-svg" aria-hidden="true">
+            <circle
+              cx="25"
+              cy="25"
+              r="20"
+              fill="none"
+              stroke-width="4"
+              class="spinner-ring"
+            ></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
     <header class="headerHome" role="banner">
       <div class="lSection">
         <a href="/" class="brand" aria-label="NaivaCom home">
@@ -102,19 +138,27 @@
     <section id="home" class="home">
       <div class="hero hero-modern">
         <div class="hero-inner">
-          <h1 class="hero-title">Upgrade your business with a fast secure System</h1>
-          <p class="hero-sub">Trusted by startups and enterprises ~ practical design, measurable results. We combine performance engineering with conversion-focused UX to deliver sites that turn visitors into customers.</p>
+          <h1 class="hero-title">
+            Upgrade your business with a fast secure System
+          </h1>
+          <p class="hero-sub">
+            Trusted by startups and enterprises ~ practical design, measurable
+            results. We combine performance engineering with conversion-focused
+            UX to deliver sites that turn visitors into customers.
+          </p>
 
           <div class="hero-ctas">
-            <a class="button-like primary-gradient" href="build.html">Start a project 💻</a>
+            <a class="button-like primary-gradient" href="build.html"
+              >Start a project 💻</a
+            >
             <a class="button-like" href="#services">Our services 💡</a>
           </div>
 
           <div class="hero-trust">
-            <span class="trust-item">⏻ 99% uptime & performance</span>
-            <span class="trust-item">🔏 Security-minded</span>
+            <span class="trust-item">🚀 99% uptime & performance</span>
+            <span class="trust-item">🛡️🔒 Security-minded</span>
             <span class="trust-item">📈 Proven growth</span>
-            <span class="trust-item">😌 29+ Satisfied Clients</span>
+            <span class="trust-item">⭐ 29+ Satisfied Clients</span>
             <span class="trust-item">👩‍🏫 24/7 client support</span>
           </div>
         </div>
@@ -286,5 +330,34 @@
         </div>
       </footer>
     </section>
+    <script>
+      // Hide the welcome curtain once the page is loaded, or after a short timeout
+      (function () {
+        const curtain = document.getElementById("welcome-curtain");
+        const hideCurtain = (fast) => {
+          if (!curtain || curtain.dataset.hidden) return;
+          curtain.dataset.hidden = "1";
+          curtain.setAttribute("aria-hidden", "true");
+          // use a shorter transition when 'fast' is true (timeout fallback)
+          if (fast) curtain.classList.add("curtain-fast-hide");
+          curtain.classList.add("curtain-hidden");
+          // remove from DOM after animation completes to free up paint
+          setTimeout(() => curtain.remove(), fast ? 400 : 900);
+        };
+
+        // Wait for window load (images/fonts) but respect reduced-motion
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          // Immediately hide without animation
+          window.addEventListener("load", () => hideCurtain(true));
+        } else {
+          window.addEventListener("load", () => hideCurtain(false));
+          // Fallback: ensure curtain hides after 2.5s in case load event is delayed
+          setTimeout(() => hideCurtain(true), 2500);
+        }
+      })();
+    </script>
   </body>
 </html>

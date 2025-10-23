@@ -69,6 +69,101 @@ body {
   backdrop-filter: blur(6px);
 }
 
+/* Welcome curtain (covers viewport on first paint, provides calming animation) */
+.welcome-curtain {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 8, 15, 0.85),
+    rgba(6, 8, 15, 0.9)
+  );
+  z-index: 9999;
+  transition: opacity 700ms cubic-bezier(0.22, 0.9, 0.33, 1), visibility 700ms;
+}
+.welcome-curtain.curtain-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.welcome-curtain.curtain-fast-hide {
+  transition-duration: 360ms;
+}
+.curtain-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  transform-origin: center;
+  animation: curtain-open 900ms cubic-bezier(0.22, 0.9, 0.33, 1) forwards;
+}
+.curtain-brand img {
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.curtain-copy h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.curtain-copy .curtain-sub {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+
+.curtain-spinner {
+  width: 56px;
+  height: 56px;
+}
+.spinner-svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  animation: spinner-rot 1.2s linear infinite;
+}
+.spinner-ring {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-dasharray: 120;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+}
+
+@keyframes spinner-rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes curtain-open {
+  0% {
+    transform: scale(0.98) translateY(6%);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.01) translateY(-2%);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: keep things quick and subtle */
+@media (prefers-reduced-motion: reduce) {
+  .curtain-inner {
+    animation: none;
+  }
+  .spinner-svg {
+    animation: none;
+  }
+  .welcome-curtain {
+    transition: none;
+  }
+}
 /* ensure home content sits below fixed header */
 .hero {
   min-height: 100vh; /* full viewport height */
@@ -254,7 +349,6 @@ html.light .hero::before {
   font-size: 0.95rem;
 }
 
-
 @media (max-width: 480px) {
   .hero-modern .hero-inner {
     padding: 24px 18px;
@@ -306,6 +400,43 @@ html.light .hero::before {
 }
 .unit {
   padding: 20px;
+}
+
+/* Scroll reveal helpers (reveal from right with stagger) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 700ms ease,
+    transform 700ms cubic-bezier(0.22, 0.9, 0.33, 1);
+  will-change: transform, opacity;
+}
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: none;
+}
+.reveal-right {
+  transform: translateX(36px);
+}
+.reveal-right.revealed {
+  transform: none;
+}
+.reveal-delay-1 {
+  transition-delay: var(--reveal-delay, 100ms);
+}
+.reveal-delay-2 {
+  transition-delay: calc(var(--reveal-delay, 100ms) * 2);
+}
+.reveal-delay-3 {
+  transition-delay: calc(var(--reveal-delay, 100ms) * 3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .reveal-right {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
 }
 .value {
   font-size: clamp(1.4rem, 2.6vw, 2.2rem);
