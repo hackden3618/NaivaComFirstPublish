@@ -304,12 +304,30 @@ const App = (() => {
 
   async function remoteSave() {
     if (!remoteEndpoint) return;
+    // notify listeners
     try {
+      window.dispatchEvent(
+        new CustomEvent("naivacom:process", {
+          detail: { message: `remoteSave -> starting PUT ${remoteEndpoint}` },
+        })
+      );
+    } catch (e) {}
+    try {
+      // attach updatedAt timestamps to items if missing
+      const stamp = () => new Date().toISOString();
+      const attach = (arr) =>
+        arr.map((it) =>
+          it && it.updatedAt
+            ? it
+            : Object.assign({}, it, { updatedAt: it.updatedAt || stamp() })
+        );
+
       const payload = {
-        services: servicesOffered.slice(),
-        testimonials: testimonialsModel.slice(),
-        projects: projectsModel.slice(),
-        team: teamMembers.slice(),
+        services: attach(servicesOffered.slice()),
+        testimonials: attach(testimonialsModel.slice()),
+        projects: attach(projectsModel.slice()),
+        team: attach(teamMembers.slice()),
+        meta: { exportedAt: new Date().toISOString() },
       };
       const headers = { "Content-Type": "application/json" };
       if (remoteSecretKey) headers["X-NaivaCom-Key"] = remoteSecretKey;
@@ -319,14 +337,35 @@ const App = (() => {
         body: JSON.stringify(payload),
         cache: "no-store",
       });
+      try {
+        window.dispatchEvent(
+          new CustomEvent("naivacom:process", {
+            detail: { message: `remoteSave -> success` },
+          })
+        );
+      } catch (e) {}
     } catch (e) {
       // don't throw - network may not be available; log for debugging
       console.warn("Remote save failed", e);
+      try {
+        window.dispatchEvent(
+          new CustomEvent("naivacom:process", {
+            detail: { message: `remoteSave -> failed ${e && e.message}` },
+          })
+        );
+      } catch (er) {}
     }
   }
 
   async function remoteFetch() {
     if (!remoteEndpoint) return null;
+    try {
+      window.dispatchEvent(
+        new CustomEvent("naivacom:process", {
+          detail: { message: `remoteFetch -> GET ${remoteEndpoint}` },
+        })
+      );
+    } catch (e) {}
     try {
       const headers = {};
       if (remoteSecretKey) headers["X-NaivaCom-Key"] = remoteSecretKey;
@@ -337,9 +376,23 @@ const App = (() => {
       });
       if (!res.ok) throw new Error("Remote fetch failed: " + res.status);
       const data = await res.json();
+      try {
+        window.dispatchEvent(
+          new CustomEvent("naivacom:process", {
+            detail: { message: `remoteFetch -> success (received)` },
+          })
+        );
+      } catch (e) {}
       return data;
     } catch (e) {
       console.warn("Remote fetch failed", e);
+      try {
+        window.dispatchEvent(
+          new CustomEvent("naivacom:process", {
+            detail: { message: `remoteFetch -> failed ${e && e.message}` },
+          })
+        );
+      } catch (er) {}
       return null;
     }
   }
@@ -374,34 +427,94 @@ const App = (() => {
   }
 
   // Try to fetch remote data and merge into local models if remote endpoint is configured.
-  // Merge strategy: if remote arrays present and non-empty, prefer remote values.
+  // Merge strategy: last-write-wins using `updatedAt` timestamps on items; if remote items have newer updatedAt, they replace local ones.
   async function tryLoadRemoteAndMerge() {
     const remote = await remoteFetch();
     if (!remote) return;
     try {
+      const mergeArray = (localArr, remoteArr) => {
+        // build map by id
+        const map = new Map();
+        (localArr || []).forEach((it) => map.set(String(it.id), it));
+        (remoteArr || []).forEach((it) => {
+          const id = String(it.id);
+          const local = map.get(id);
+          // if local missing, accept remote
+          if (!local) {
+            map.set(id, it);
+            return;
+          }
+          // compare updatedAt if present
+          const localTS = local.updatedAt ? Date.parse(local.updatedAt) : 0;
+          const remoteTS = it.updatedAt ? Date.parse(it.updatedAt) : 0;
+          if (remoteTS >= localTS) {
+            map.set(id, it);
+          }
+        });
+        // return array sorted: keep remote order if provided, else local order
+        const out = [];
+        if (Array.isArray(remoteArr) && remoteArr.length) {
+          remoteArr.forEach((it) => {
+            const v = map.get(String(it.id));
+            if (v) out.push(v);
+          });
+          // include any locals not in remote
+          localArr.forEach((it) => {
+            if (!remoteArr.find((r) => String(r.id) === String(it.id)))
+              out.push(it);
+          });
+        } else {
+          out.push(...localArr);
+        }
+        return out;
+      };
+
       if (Array.isArray(remote.services) && remote.services.length) {
+        const merged = mergeArray(servicesOffered.slice(), remote.services);
         servicesOffered.length = 0;
-        servicesOffered.push(...remote.services);
+        servicesOffered.push(...merged);
         save();
       }
       if (Array.isArray(remote.testimonials) && remote.testimonials.length) {
+        const merged = mergeArray(
+          testimonialsModel.slice(),
+          remote.testimonials
+        );
         testimonialsModel.length = 0;
-        testimonialsModel.push(...remote.testimonials);
+        testimonialsModel.push(...merged);
         save();
       }
       if (Array.isArray(remote.projects) && remote.projects.length) {
+        const merged = mergeArray(projectsModel.slice(), remote.projects);
         projectsModel.length = 0;
-        projectsModel.push(...remote.projects);
+        projectsModel.push(...merged);
         save();
       }
       if (Array.isArray(remote.team) && remote.team.length) {
+        const merged = mergeArray(teamMembers.slice(), remote.team);
         teamMembers.length = 0;
-        teamMembers.push(...remote.team);
+        teamMembers.push(...merged);
         save();
       }
+      // attach a top-level marker indicating when remote data was loaded
+      try {
+        window.dispatchEvent(
+          new CustomEvent("naivacom:process", {
+            detail: { message: `tryLoadRemoteAndMerge -> merged remote data` },
+          })
+        );
+      } catch (e) {}
     } catch (e) {
       console.warn("Failed to merge remote data", e);
     }
+    // announce that remote data was loaded
+    try {
+      window.dispatchEvent(
+        new CustomEvent("naivacom:remoteLoaded", {
+          detail: { at: new Date().toISOString() },
+        })
+      );
+    } catch (e) {}
   }
 
   // Utilities
@@ -612,6 +725,34 @@ const App = (() => {
 // auto-init
 document.addEventListener("DOMContentLoaded", () => {
   App.init();
+  // show a small banner when remote data is loaded
+  window.addEventListener("naivacom:remoteLoaded", (e) => {
+    try {
+      const at = (e && e.detail && e.detail.at) || new Date().toISOString();
+      // banner
+      const existing = document.querySelector(".remote-sync-banner");
+      if (existing) existing.remove();
+      const b = document.createElement("div");
+      b.className = "remote-sync-banner ok";
+      b.textContent = `Data loaded from central server ${new Date(
+        at
+      ).toLocaleString()}`;
+      document.body.appendChild(b);
+      setTimeout(() => {
+        b.classList.remove("ok");
+      }, 7000);
+
+      // add a small hint in contacts/footer area if present
+      const hint = document.createElement("div");
+      hint.className = "remote-sync-hint";
+      hint.textContent = `Central data loaded ${new Date(at).toLocaleString()}`;
+      const footer =
+        document.querySelector("footer") || document.querySelector(".contacts");
+      if (footer) footer.insertBefore(hint, footer.firstChild);
+    } catch (err) {
+      /* ignore */
+    }
+  });
 });
 
 // Theme toggle: add light mode support and persist preference

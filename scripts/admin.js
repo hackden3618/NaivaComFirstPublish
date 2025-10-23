@@ -71,6 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const clearBtn = document.getElementById("clear-data");
   const toggleEditBtn = document.getElementById("toggle-edit");
   const editStatus = document.getElementById("edit-status");
+  const toggleProcessesBtn = document.getElementById("toggle-processes");
+  const processesPanel = document.getElementById("processes-panel");
+  const processLog = document.getElementById("process-log");
+  const clearProcessBtn = document.getElementById("clear-process-log");
+  const pauseProcessBtn = document.getElementById("pause-process-log");
+  let processPaused = false;
 
   // --- Collapsible sections helpers ---
   function getOrCreateSection(id, nodes) {
@@ -151,8 +157,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     if (editStatus)
       editStatus.textContent = editEnabled
-        ? "Editing enabled"
+        ? "Disable editing"
         : "Editing disabled";
+    // update toggle-edit button label
+    if (toggleEditBtn)
+      toggleEditBtn.textContent = editEnabled
+        ? "Disable Editing"
+        : "Enable Editing";
   }
 
   /* -----------------------
@@ -816,6 +827,50 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Process log helpers
+  function appendProcessLine(line) {
+    if (processPaused) return;
+    if (!processLog) return;
+    const now = new Date().toISOString();
+    processLog.textContent += `[${now}] ${line}\n`;
+    processLog.scrollTop = processLog.scrollHeight;
+  }
+
+  if (toggleProcessesBtn) {
+    toggleProcessesBtn.addEventListener("click", () => {
+      const isOpen =
+        toggleProcessesBtn.getAttribute("aria-expanded") === "true";
+      if (isOpen) {
+        toggleProcessesBtn.setAttribute("aria-expanded", "false");
+        toggleProcessesBtn.textContent = "Show processes";
+        if (processesPanel) processesPanel.style.display = "none";
+      } else {
+        toggleProcessesBtn.setAttribute("aria-expanded", "true");
+        toggleProcessesBtn.textContent = "Hide processes";
+        if (processesPanel) processesPanel.style.display = "block";
+      }
+    });
+  }
+
+  if (clearProcessBtn) {
+    clearProcessBtn.addEventListener("click", () => {
+      if (processLog) processLog.textContent = "";
+    });
+  }
+
+  if (pauseProcessBtn) {
+    pauseProcessBtn.addEventListener("click", () => {
+      processPaused = !processPaused;
+      pauseProcessBtn.textContent = processPaused ? "Resume" : "Pause";
+    });
+  }
+
+  // listen for global App process events
+  window.addEventListener("naivacom:process", (e) => {
+    const detail = (e && e.detail) || {};
+    appendProcessLine(detail.message || "process event");
+  });
 
   // Remote config: save endpoint and post to server
   const remoteEndpointInput = document.getElementById("remote-endpoint");
