@@ -18,20 +18,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   toggle.addEventListener("click", (e) => {
+    e.preventDefault();
     const expanded = toggle.getAttribute("aria-expanded") === "true";
     if (expanded) closeMenu();
     else openMenu();
-  });
+  }, { passive: false });
 
-  // close on outside click
   document.addEventListener("click", (e) => {
     if (!header.contains(e.target)) closeMenu();
-  });
+  }, { passive: true });
 
-  // close on escape
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();
-  });
+  }, { passive: true });
 });
 
 /* Simple MVC for Services and Testimonials */

@@ -717,7 +717,12 @@ html.light .hero::before {
 .reveal {
   opacity: 0;
   transform: translateY(12px);
-  animation: revealUp 0.5s forwards ease-out;
+  will-change: transform, opacity;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 @keyframes revealUp {
   to {

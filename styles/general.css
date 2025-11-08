@@ -28,13 +28,14 @@ html.light h3 {
 
 /* In light mode prefer a clean background (no heavy neon image) for readability */
 html.light body {
-  /* use the luxurious light background image for light theme */
   background-image: url("../images/icons/luxuriousBackgroundLight_imgupscaler.ai_General_4K.jpg");
   background-position: center;
   background-attachment: fixed;
   background-size: cover;
   background-repeat: no-repeat;
   background-color: var(--bg);
+  will-change: scroll-position;
+  contain: layout style paint;
 }
 
 * {
@@ -44,6 +45,14 @@ html,
 body {
   height: 100%;
 }
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local('Inter');
+}
+
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
@@ -57,6 +66,8 @@ body {
   transition: background-color 0.25s ease, color 0.2s ease;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  will-change: scroll-position;
+  contain: layout style paint;
 }
 
 /* utility */

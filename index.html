@@ -30,24 +30,87 @@
       content="https://yourdomain.example/images/NaivaComOgImage.png"
     />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#491574" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NaivaCom" />
+    <link rel="apple-touch-icon" href="/images/icons/NaivaComLogo-removebg.png" />
 
     <!-- Preload background images for faster paint -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google.com" />
     <link
       rel="preload"
       href="images/dark-hexagonal-neon-light-background_485324-2534_imgupscaler.ai_General_4K.jpg"
       as="image"
+      fetchpriority="high"
     />
     <link
       rel="preload"
       href="images/icons/luxuriousBackgroundLight_imgupscaler.ai_General_4K.jpg"
       as="image"
+      fetchpriority="low"
     />
+    <link rel="preload" href="styles/general.css" as="style" />
     <link rel="stylesheet" href="styles/general.css" />
     <link rel="stylesheet" href="styles/header.css" />
     <link rel="stylesheet" href="styles/home.css" />
     <link rel="stylesheet" href="styles/index.css" />
+    <style>
+      body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#fff;background-color:hsl(240 10% 7%/.85);line-height:1.5;-webkit-font-smoothing:antialiased}.welcome-curtain{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(6,8,15,.85),rgba(6,8,15,.9));z-index:9999}
+    </style>
     <script defer src="scripts/home.js"></script>
     <script defer src="scripts/index.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered'))
+            .catch(err => console.log('SW registration failed'));
+        });
+      }
+
+      // Web Vitals monitoring
+      function sendToAnalytics(metric) {
+        const body = JSON.stringify(metric);
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/analytics', body);
+        }
+      }
+
+      // Lazy load Web Vitals library for performance monitoring
+      if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.entryType === 'largest-contentful-paint') {
+              sendToAnalytics({name: 'LCP', value: entry.renderTime || entry.loadTime});
+            }
+          }
+        });
+        observer.observe({entryTypes: ['largest-contentful-paint']});
+
+        // FID monitoring
+        const fidObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            sendToAnalytics({name: 'FID', value: entry.processingStart - entry.startTime});
+          }
+        });
+        fidObserver.observe({entryTypes: ['first-input']});
+
+        // CLS monitoring
+        let clsValue = 0;
+        const clsObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+              sendToAnalytics({name: 'CLS', value: clsValue});
+            }
+          }
+        });
+        clsObserver.observe({entryTypes: ['layout-shift']});
+      }
+    </script>
   </head>
   <body>
     <!-- Welcome curtain: covers the viewport while the site finishes loading -->
@@ -66,6 +129,7 @@
             width="84"
             height="84"
             loading="eager"
+            fetchpriority="high"
           />
         </div>
         <div class="curtain-copy">
@@ -93,7 +157,10 @@
             <img
               src="images/NaivaComLogo.jpeg"
               alt="NaivaCom Logo"
-              loading="lazy"
+              loading="eager"
+              width="60"
+              height="60"
+              fetchpriority="high"
             />
           </div>
           <span class="brandName">NaivaCom</span>
@@ -130,6 +197,9 @@
           <img
             src="images/icons/hambugerMenuIcon-removebg.png"
             alt="Open menu icon"
+            width="32"
+            height="32"
+            loading="eager"
           />
         </button>
       </div>
@@ -273,11 +343,13 @@
               href="https://www.google.com/maps?q=Vienna+Courts+Kilimani+Nairobi+PO+Box+50138-00100+Nairobi+GPO"
               class="map-preview"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
             >
               <iframe
                 src="https://www.google.com/maps?q=Vienna+Courts+Kilimani+Nairobi+PO+Box+50138-00100+Nairobi+GPO&output=embed"
                 aria-hidden="true"
+                loading="lazy"
+                title="NaivaCom office location map"
               ></iframe>
             </a>
           </div>
